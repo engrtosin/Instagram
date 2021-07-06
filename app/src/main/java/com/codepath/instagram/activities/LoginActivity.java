@@ -28,9 +28,9 @@ public class LoginActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-//        if (ParseUser.getCurrentUser() != null) {
-//            goMainActivity();
-//        }
+        if (ParseUser.getCurrentUser() != null) {
+            goMainActivity();
+        }
 
         binding.btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,11 +62,12 @@ public class LoginActivity extends AppCompatActivity {
             public void done(ParseException e) {
                 if (e == null) {
                     Log.i(TAG,"Successful sign up");
-                    Toast.makeText(LoginActivity.this, "Successful!", Toast.LENGTH_SHORT);
+                    Toast.makeText(LoginActivity.this, "Successful!", Toast.LENGTH_SHORT).show();
+                    loginUser(username,password);
                     // Hooray! Let them use the app now.
                 } else {
-                    // Sign up didn't succeed. Look at the ParseException
-                    // to figure out what went wrong
+                    Log.i(TAG,"Failed sign up");
+                    Toast.makeText(LoginActivity.this, "Error signing up!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -83,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 goMainActivity();
-                Toast.makeText(LoginActivity.this,"Successful!",Toast.LENGTH_SHORT);
+                Toast.makeText(LoginActivity.this,"Successful!",Toast.LENGTH_SHORT).show();
             }
         });
     }
