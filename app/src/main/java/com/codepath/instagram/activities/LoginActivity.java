@@ -28,9 +28,9 @@ public class LoginActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        if (ParseUser.getCurrentUser() != null) {
-            goMainActivity();
-        }
+//        if (ParseUser.getCurrentUser() != null) {
+//            goMainActivity();
+//        }
 
         binding.btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
