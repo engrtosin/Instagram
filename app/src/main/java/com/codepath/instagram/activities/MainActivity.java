@@ -20,17 +20,18 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
+    ActivityMainBinding binding;
+    public static int COMPOSE_REQUEST_CODE = 12;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
         Log.i(TAG,"Tofunmi");
 
-        binding.ivLogout.setVisibility(View.VISIBLE);
         binding.ivLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,8 +39,20 @@ public class MainActivity extends AppCompatActivity {
                 goLoginActivity();
             }
         });
+
+        binding.ivNewPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goComposePostActivity();
+            }
+        });
         
         queryPosts();
+    }
+
+    private void goComposePostActivity() {
+        Intent i = new Intent(MainActivity.this, ComposePostActivity.class);
+        startActivityForResult(i, COMPOSE_REQUEST_CODE);
     }
 
     private void queryPosts() {

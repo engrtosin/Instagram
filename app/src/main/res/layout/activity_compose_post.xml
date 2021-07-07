@@ -11,8 +11,9 @@
         android:id="@+id/etDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="46dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="79dp"
+        android:layout_alignParentTop="true"
         android:hint="Description"
         android:inputType="textMultiLine" />
 
@@ -27,11 +28,12 @@
 
     <ImageView
         android:id="@+id/ivPostPhoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
         android:layout_below="@+id/btnTakePicture"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="50dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        tools:srcCompat="@tools:sample/avatars" />
 
     <Button
         android:id="@+id/btnSubmit"

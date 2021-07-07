@@ -16,4 +16,14 @@
         android:layout_marginTop="0dp"
         app:srcCompat="@drawable/outline_logout_black_24dp" />
 
+    <ImageView
+        android:id="@+id/ivNewPost"
+        android:layout_width="46dp"
+        android:layout_height="54dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="-1dp"
+        android:layout_toEndOf="@+id/ivLogout"
+        app:srcCompat="@drawable/instagram_new_post_outline_24" />
+
 </RelativeLayout>
