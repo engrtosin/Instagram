@@ -2,6 +2,7 @@ package com.codepath.instagram.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,8 +91,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
         public void bind(Post post) {
             containedPost = post;
-            tvDescription.setText(post.getDescription());
-            tvUsername.setText(post.getUser().getUsername());
+            String username = post.getUser().getUsername();
+            tvUsername.setText(username);
+            String boldUser = "<B>" + username + "</B>";
+            String description = post.getDescription();
+            tvDescription.setText(Html.fromHtml(boldUser + description));
             ParseFile image = post.getImage();
             if (image != null) {
                 Log.i(TAG,"about to glide image");

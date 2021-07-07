@@ -65,6 +65,9 @@
         android:layout_below="@id/rlTopRow"
         android:layout_marginTop="5dp"
         android:scaleType="centerCrop"
+        android:background="@color/boundary_gray"
+        android:paddingTop="0.6dp"
+        android:paddingBottom="0.6dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <RelativeLayout
@@ -118,6 +121,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/rlLikeReplyDM"
         android:layout_marginStart="15dp"
+        android:text="10 likes"
         android:textColor="@color/black"
         android:textStyle="bold"
         tools:text="10 likes" />
