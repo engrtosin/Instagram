@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="signup_green">#35C83B</color>
+    <color name="login_blue">#1896FA</color>
+    <color name="boundary_gray">#DCDCDC</color>
 </resources>

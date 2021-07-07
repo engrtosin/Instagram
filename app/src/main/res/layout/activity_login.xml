@@ -10,53 +10,69 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:layout_marginTop="40dp">
 
         <ImageView
             android:id="@+id/ivInstagramLogo"
             android:layout_width="200dp"
-            android:layout_height="120dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="25dp"
             android:layout_gravity="center"
             app:srcCompat="@drawable/nav_logo_whiteout" />
 
         <EditText
             android:id="@+id/etUsername"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:paddingStart="20dp"
+            android:background="@drawable/rounded_text_rectangle"
+            android:textColor="@color/black"
             android:hint="Username" />
 
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:paddingStart="20dp"
+            android:textColor="@color/black"
             android:hint="Password"
+            android:background="@drawable/rounded_text_rectangle"
             android:inputType="textPassword"/>
 
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="15dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:text="Login" />
+            android:background="@drawable/rounded_login_rectangle"
+            android:text="Login"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/btnSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="15dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:text="Sign Up" />
+            android:background="@drawable/rounded_signup_rectangle"
+            android:text="Sign Up"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </RelativeLayout>
