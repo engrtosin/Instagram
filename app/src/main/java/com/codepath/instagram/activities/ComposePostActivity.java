@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.codepath.instagram.BitmapScaler;
 import com.codepath.instagram.R;
 import com.codepath.instagram.databinding.ActivityComposePostBinding;
+import com.codepath.instagram.databinding.ActivityPostDetailsBinding;
 import com.codepath.instagram.models.Post;
 import com.parse.Parse;
 import com.parse.ParseException;

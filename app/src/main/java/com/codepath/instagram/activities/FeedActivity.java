@@ -17,6 +17,8 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,15 @@ public class FeedActivity extends AppCompatActivity {
         adapter = new PostsAdapter(this, allPosts);
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(new LinearLayoutManager(this));
+
+        adapter.setListener(new PostsAdapter.PostsAdapterListener() {
+            @Override
+            public void postClicked(Post post) {
+                Intent i = new Intent(FeedActivity.this, PostDetailsActivity.class);
+                i.putExtra(Post.class.getSimpleName(),Parcels.wrap(post));
+                startActivity(i);
+            }
+        });
 
         binding.ivLogout.setOnClickListener(new View.OnClickListener() {
             @Override
