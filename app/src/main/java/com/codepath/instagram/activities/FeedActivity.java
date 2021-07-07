@@ -65,7 +65,7 @@ public class FeedActivity extends AppCompatActivity {
                 // Your code to refresh the list here.
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
-                fetchTimelineAsync(0);
+                queryPosts();
             }
         });
         // Configure the refreshing colors
@@ -75,9 +75,6 @@ public class FeedActivity extends AppCompatActivity {
                 android.R.color.holo_red_light);
         
         queryPosts();
-    }
-
-    private void fetchTimelineAsync(int i) {
     }
 
     private void goComposePostActivity() {
@@ -99,8 +96,9 @@ public class FeedActivity extends AppCompatActivity {
                     return;
                 }
                 Log.i(TAG,"Success in querying posts.");
-                allPosts.addAll(posts);
-                adapter.notifyDataSetChanged();
+                adapter.clear();
+                adapter.addAll(posts);
+                binding.swipeContainer.setRefreshing(false);
             }
         });
     }
