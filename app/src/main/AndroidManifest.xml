@@ -25,7 +25,7 @@
         </provider>
 
         <activity android:name=".activities.ComposePostActivity"></activity>
-        <activity android:name=".activities.MainActivity" />
+        <activity android:name=".activities.FeedActivity" />
         <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
