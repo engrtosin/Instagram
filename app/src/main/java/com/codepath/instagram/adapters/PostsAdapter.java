@@ -25,6 +25,7 @@ import java.util.List;
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
 
     public static final String TAG = "PostsAdapter";
+    public static final String USER_PIC_KEY = "userPic";
 
     private Context context;
     private List<Post> posts;
@@ -81,12 +82,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private ImageView ivPostImage;
         private TextView tvDescription;
         private Post containedPost;
+        private ImageView ivUserPhoto;
+        private TextView tvTimestamp;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUsername = itemView.findViewById(R.id.tvUsername);
             ivPostImage = itemView.findViewById(R.id.ivPostImage);
             tvDescription = itemView.findViewById(R.id.tvDescription);
+            ivUserPhoto = itemView.findViewById(R.id.ivUserPhoto);
+            tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
         }
 
         public void bind(Post post) {
@@ -96,10 +101,17 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             String boldUser = "<B>" + username + "</B>";
             String description = post.getDescription();
             tvDescription.setText(Html.fromHtml(boldUser + description));
+            String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
+            tvTimestamp.setText(timeAgo);
             ParseFile image = post.getImage();
             if (image != null) {
                 Log.i(TAG,"about to glide image");
                 Glide.with(context).load(image.getUrl()).into(ivPostImage);
+            }
+            image = post.getUser().getParseFile(USER_PIC_KEY);
+            if (image != null) {
+                Log.i(TAG,"about to glide user pic");
+                Glide.with(context).load(image.getUrl()).into(ivUserPhoto);
             }
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
