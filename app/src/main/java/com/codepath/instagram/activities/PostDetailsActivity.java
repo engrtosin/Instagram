@@ -46,7 +46,7 @@ public class PostDetailsActivity extends AppCompatActivity {
             Log.i(TAG,"about to glide image");
             Glide.with(this).load(image.getUrl()).into(binding.ivPostImage);
         }
-
         String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
+        binding.tvTimestamp.setText(timeAgo);
     }
 }

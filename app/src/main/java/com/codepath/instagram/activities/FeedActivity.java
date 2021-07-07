@@ -2,6 +2,7 @@ package com.codepath.instagram.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.ActivityFeedBinding;
 import com.codepath.instagram.models.Post;
@@ -31,6 +33,7 @@ public class FeedActivity extends AppCompatActivity {
     protected PostsAdapter adapter;
     protected List<Post> allPosts;
     ActivityFeedBinding binding;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +44,11 @@ public class FeedActivity extends AppCompatActivity {
         setContentView(view);
         Log.i(TAG,"Tofunmi");
 
+        LinearLayoutManager llManager = new LinearLayoutManager(this);
         allPosts = new ArrayList<>();
         adapter = new PostsAdapter(this, allPosts);
         binding.rvPosts.setAdapter(adapter);
-        binding.rvPosts.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvPosts.setLayoutManager(llManager);
 
         adapter.setListener(new PostsAdapter.PostsAdapterListener() {
             @Override
@@ -84,8 +88,37 @@ public class FeedActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-        
+
+        scrollListener = new EndlessRecyclerViewScrollListener(llManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                fetchOlderTweets();
+            }
+        };
+        binding.rvPosts.addOnScrollListener(scrollListener);
         queryPosts();
+    }
+
+    private void fetchOlderTweets() {
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.include(Post.KEY_USER);
+        // limit query to latest 20 items
+        query.setLimit(MAX_POST_NUM);
+        query.orderByDescending(Post.KEY_CREATED_AT);
+        query.setSkip(allPosts.size());
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG,"Failure in querying posts.",e);
+                    return;
+                }
+                Log.i(TAG,"Done with endless scrolling.");
+                Log.i(TAG,"Success in querying posts.");
+                adapter.addAll(posts);
+                binding.swipeContainer.setRefreshing(false);
+            }
+        });
     }
 
     private void goComposePostActivity() {
