@@ -131,6 +131,7 @@ public class PostsFragment extends FeedFragment {
             }
         };
         binding.rvPosts.addOnScrollListener(scrollListener);
+        // TODO: Change this to be called only if posts are reloaded
         queryPosts();
     }
 
