@@ -39,7 +39,7 @@ public class PostDetailsActivity extends AppCompatActivity {
 
     private void fillInViews() {
         Log.i(TAG, "Is post null: " + String.valueOf(post == null));
-        binding.tvDescription.setText(post.getDescription());
+        binding.tvDescription.setText(post.getDescription(true));
         binding.tvUsername.setText(post.getUser().getUsername());
         ParseFile image = post.getImage();
         if (image != null) {

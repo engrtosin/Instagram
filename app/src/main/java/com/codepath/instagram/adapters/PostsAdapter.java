@@ -98,8 +98,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             containedPost = post;
             String username = post.getUser().getUsername();
             tvUsername.setText(username);
-            String boldUser = "<B>" + username + "</B>";
-            String description = post.getDescription();
+            String boldUser = "<B>" + username + " </B>";
+            String description = post.getDescription(false);
             tvDescription.setText(Html.fromHtml(boldUser + description));
             String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
             tvTimestamp.setText(timeAgo);

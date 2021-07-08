@@ -1,24 +1,37 @@
 package com.codepath.instagram.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
+import com.codepath.instagram.FeedFragment;
+import com.codepath.instagram.R;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.ActivityFeedBinding;
+import com.codepath.instagram.fragments.ComposeFragment;
+import com.codepath.instagram.fragments.PostDetailsFragment;
+import com.codepath.instagram.fragments.PostsFragment;
 import com.codepath.instagram.models.Post;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.jetbrains.annotations.NotNull;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
@@ -34,122 +47,62 @@ public class FeedActivity extends AppCompatActivity {
     protected List<Post> allPosts;
     ActivityFeedBinding binding;
     private EndlessRecyclerViewScrollListener scrollListener;
+    final FragmentManager fragmentManager = getSupportFragmentManager();
+    FeedFragment.FeedFragmentInterface fragmentListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityFeedBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        Log.i(TAG,"Tofunmi");
 
-        LinearLayoutManager llManager = new LinearLayoutManager(this);
-        allPosts = new ArrayList<>();
-        adapter = new PostsAdapter(this, allPosts);
-        binding.rvPosts.setAdapter(adapter);
-        binding.rvPosts.setLayoutManager(llManager);
-
-        adapter.setListener(new PostsAdapter.PostsAdapterListener() {
+        fragmentListener = new FeedFragment.FeedFragmentInterface() {
             @Override
-            public void postClicked(Post post) {
-                Intent i = new Intent(FeedActivity.this, PostDetailsActivity.class);
-                i.putExtra(Post.class.getSimpleName(),Parcels.wrap(post));
-                startActivity(i);
+            public void goToActivity(Class activityClass, Parcelable extraInfo) {
+
             }
-        });
 
-        binding.ivLogout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                ParseUser.logOut();
-                goLoginActivity();
-            }
-        });
-
-        binding.ivNewPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goComposePostActivity();
-            }
-        });
-
-        binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
-                queryPosts();
-            }
-        });
-        // Configure the refreshing colors
-        binding.swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-
-        scrollListener = new EndlessRecyclerViewScrollListener(llManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                fetchOlderTweets();
+            public void goToFragment(FeedFragment toFragment, Parcelable extraInfo) {
+                // this method should not be used when button navigation can be used
+                if (toFragment instanceof PostDetailsFragment) {
+                    Bundle args = new Bundle();
+                    args.putParcelable(getString(R.string.post_object_key),extraInfo);
+                    toFragment.setArguments(args);
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                }
             }
         };
-        binding.rvPosts.addOnScrollListener(scrollListener);
-        queryPosts();
-    }
 
-    private void fetchOlderTweets() {
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        // limit query to latest 20 items
-        query.setLimit(MAX_POST_NUM);
-        query.orderByDescending(Post.KEY_CREATED_AT);
-        query.setSkip(allPosts.size());
-        query.findInBackground(new FindCallback<Post>() {
+        binding.bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG,"Failure in querying posts.",e);
-                    return;
+            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+                FeedFragment fragment;
+                switch (item.getItemId()) {
+                    case R.id.action_home:
+                        fragment = new PostsFragment();
+                        fragment.setListener(fragmentListener);
+                        break;
+                    case R.id.action_compose:
+                        fragment = new ComposeFragment();
+                        fragment.setListener(fragmentListener);
+                        break;
+                    case R.id.action_profile:
+                        fragment = new ComposeFragment();
+                        fragment.setListener(fragmentListener);
+                        break;
+                    default:
+                        fragment = new ComposeFragment();
+                        fragment.setListener(fragmentListener);
+                        break;
                 }
-                Log.i(TAG,"Done with endless scrolling.");
-                Log.i(TAG,"Success in querying posts.");
-                adapter.addAll(posts);
-                binding.swipeContainer.setRefreshing(false);
+                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
+                return true;
             }
         });
-    }
-
-    private void goComposePostActivity() {
-        Intent i = new Intent(FeedActivity.this, ComposePostActivity.class);
-        startActivityForResult(i, COMPOSE_REQUEST_CODE);
-    }
-
-    private void queryPosts() {
-        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
-        query.include(Post.KEY_USER);
-        // limit query to latest 20 items
-        query.setLimit(MAX_POST_NUM);
-        query.orderByDescending(Post.KEY_CREATED_AT);
-        query.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.e(TAG,"Failure in querying posts.",e);
-                    return;
-                }
-                Log.i(TAG,"Success in querying posts.");
-                adapter.clear();
-                adapter.addAll(posts);
-                binding.swipeContainer.setRefreshing(false);
-            }
-        });
-    }
-
-    private void goLoginActivity() {
-        Intent i = new Intent(this, LoginActivity.class);
-        startActivity(i);
-        finish();
+        // Set default selection
+        binding.bottomNavigation.setSelectedItemId(R.id.action_home);
     }
 }

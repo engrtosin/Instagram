@@ -19,9 +19,17 @@ public class Post extends ParseObject {
     public static final String KEY_DESCRIPTION = "description";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_USER = "user";
+    public static final int MAX_DESC_LENGTH = 100;
 
-    public String getDescription() {
-        return getString(KEY_DESCRIPTION);
+    public String getDescription(boolean isFull) {
+
+        String fullDescription = getString(KEY_DESCRIPTION);
+        if (!isFull) {
+            if (fullDescription.length() > MAX_DESC_LENGTH) {
+                return fullDescription.substring(0,MAX_DESC_LENGTH);
+            }
+        }
+        return fullDescription;
     }
 
     public void setDescription(String description) {
