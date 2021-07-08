@@ -45,6 +45,8 @@ public class FeedActivity extends AppCompatActivity {
     ActivityFeedBinding binding;
     final FragmentManager fragmentManager = getSupportFragmentManager();
     FeedFragment.FeedFragmentInterface fragmentListener;
+    FeedFragment currentFragment;
+    FeedFragment previousFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,12 @@ public class FeedActivity extends AppCompatActivity {
             public void goToFragment(FeedFragment toFragment, Parcelable extraInfo) {
                 // this method should not be used when button navigation can be used
                 toFragment.setListener(fragmentListener);
+                previousFragment = currentFragment;
+                currentFragment = toFragment;
+                if (previousFragment != null) {
+                    Log.i(TAG,"previous: " + previousFragment.getClass());
+                }
+                Log.i(TAG,"current: " + currentFragment.getClass());
                 if (toFragment instanceof PostDetailsFragment) {
                     Bundle args = new Bundle();
                     args.putParcelable(getString(R.string.post_object_key),extraInfo);
@@ -76,7 +84,7 @@ public class FeedActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
                 }
                 else if (toFragment instanceof PostsFragment) {
-                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                    binding.bottomNavigation.setSelectedItemId(R.id.action_home);
                 }
             }
         };
@@ -105,11 +113,37 @@ public class FeedActivity extends AppCompatActivity {
                         fragment = new ComposeFragment();
                         break;
                 }
+                previousFragment = currentFragment;
+                currentFragment = fragment;
+                if (previousFragment != null) {
+                    Log.i(TAG,"previous: " + previousFragment.getClass());
+                }
+                Log.i(TAG,"current: " + currentFragment.getClass());
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
         });
         // Set default selection
         binding.bottomNavigation.setSelectedItemId(R.id.action_home);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentFragment instanceof PostDetailsFragment) {
+            Log.i(TAG,"Back pressed in post details");
+            if (previousFragment != null) {
+                Log.i(TAG,"previous: " + previousFragment.getClass());
+                if (previousFragment.getClass().equals(PostsFragment.class)) {
+                    binding.bottomNavigation.setSelectedItemId(R.id.action_home);
+                }
+                else if (previousFragment.getClass().equals(ProfileFragment.class)) {
+                    Log.i(TAG,"while previously in profile fragment");
+                    binding.bottomNavigation.setSelectedItemId(R.id.action_profile);
+                }
+            }
+        } else {
+            super.onBackPressed();
+        }
+
     }
 }

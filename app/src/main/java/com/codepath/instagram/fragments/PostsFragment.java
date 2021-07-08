@@ -1,13 +1,10 @@
 package com.codepath.instagram.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -18,14 +15,7 @@ import android.view.ViewGroup;
 
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.FeedFragment;
-import com.codepath.instagram.R;
-import com.codepath.instagram.activities.ComposePostActivity;
-import com.codepath.instagram.activities.FeedActivity;
-import com.codepath.instagram.activities.LoginActivity;
-import com.codepath.instagram.activities.PostDetailsActivity;
 import com.codepath.instagram.adapters.PostsAdapter;
-import com.codepath.instagram.databinding.ActivityFeedBinding;
-import com.codepath.instagram.databinding.FragmentComposeBinding;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
 import com.codepath.instagram.models.Post;
 import com.parse.FindCallback;
@@ -34,6 +24,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
@@ -89,8 +80,17 @@ public class PostsFragment extends FeedFragment {
             }
 
             @Override
-            public void postLiked(Post post) {
+            public void postLiked(boolean isLiked, Post post) throws ParseException {
                 Log.i(TAG,"user liked: going to POST to server");
+                post.updateUsersLikingThisInDB(isLiked,ParseUser.getCurrentUser().getObjectId());
+                if (isLiked) {
+                    Log.i(TAG,"setting like count");
+                    post.setLikeCount(post.getLikeCount() - 1);
+                }
+                else {
+                    Log.i(TAG,"setting like count");
+                    post.setLikeCount(post.getLikeCount() + 1);
+                }
             }
         });
 
@@ -174,6 +174,13 @@ public class PostsFragment extends FeedFragment {
                     return;
                 }
                 Log.i(TAG,"Success in querying posts.");
+                for (Post post: posts) {
+                    try {
+                        post.setInitialLikeCount();
+                    } catch (JSONException jsonException) {
+                        Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
+                    }
+                }
                 adapter.clear();
                 adapter.addAll(posts);
                 binding.swipeContainer.setRefreshing(false);

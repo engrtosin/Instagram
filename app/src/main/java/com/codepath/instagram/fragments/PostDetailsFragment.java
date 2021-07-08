@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.os.Parcelable;
@@ -19,6 +20,7 @@ import com.codepath.instagram.R;
 import com.codepath.instagram.databinding.FragmentPostDetailsBinding;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
 import com.codepath.instagram.models.Post;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
@@ -77,6 +79,45 @@ public class PostDetailsFragment extends FeedFragment {
                 goLoginActivity();
             }
         });
+        binding.ivLikeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (containedPost.getCurrentUserLiked()) {
+                    // user has liked. make user unlike
+                    Log.i(TAG,"user has liked, make the user unlike");
+                    binding.ivLikeBtn.setImageResource(R.drawable.ufi_heart);
+                    binding.ivLikeBtn.setColorFilter(ContextCompat.getColor(getContext(), R.color.black), android.graphics.PorterDuff.Mode.SRC_IN);
+                    // tell the listener that user liked post before
+                    whenContainedPostLiked();
+                }
+                else {
+                    // user did not like. make user like
+                    binding.ivLikeBtn.setImageResource(R.drawable.ufi_heart_active);
+                    binding.ivLikeBtn.setColorFilter(ContextCompat.getColor(getContext(), R.color.medium_red), android.graphics.PorterDuff.Mode.SRC_IN);
+                    // tell the listener that user did not like post before
+                    whenContainedPostLiked();
+                }
+                binding.tvLikesCount.setText(containedPost.getStringLikeCount());
+            }
+        });
+    }
+
+    private void whenContainedPostLiked() {
+        try {
+            Log.i(TAG,"user liked: going to POST to server");
+            if (containedPost.getCurrentUserLiked()) {
+                Log.i(TAG,"setting like count");
+                containedPost.setLikeCount(containedPost.getLikeCount() - 1);
+                containedPost.updateUsersLikingThisInDB(true,ParseUser.getCurrentUser().getObjectId());
+            }
+            else {
+                Log.i(TAG,"setting like count");
+                containedPost.setLikeCount(containedPost.getLikeCount() + 1);
+                containedPost.updateUsersLikingThisInDB(false,ParseUser.getCurrentUser().getObjectId());
+            }
+        } catch (ParseException e) {
+            Log.e(TAG,"error posting like in details" + e.getMessage(),e);
+        }
     }
 
     public void bind(Post post) {
@@ -87,7 +128,17 @@ public class PostDetailsFragment extends FeedFragment {
         binding.tvDescription.setText(Html.fromHtml(boldUser + description));
         String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
         binding.tvTimestamp.setText(timeAgo);
-        binding.tvLikesCount.setText(post.getLikeCount());
+        binding.tvLikesCount.setText(post.getStringLikeCount());
+        if (containedPost.getCurrentUserLiked()) {
+            // user has liked.
+            binding.ivLikeBtn.setImageResource(R.drawable.ufi_heart_active);
+            binding.ivLikeBtn.setColorFilter(ContextCompat.getColor(getContext(), R.color.medium_red), android.graphics.PorterDuff.Mode.SRC_IN);
+        }
+        else {
+            // user did not like
+            binding.ivLikeBtn.setImageResource(R.drawable.ufi_heart);
+            binding.ivLikeBtn.setColorFilter(ContextCompat.getColor(getContext(), R.color.black), android.graphics.PorterDuff.Mode.SRC_IN);
+        }
         ParseFile image = post.getImage();
         if (image != null) {
             Log.i(TAG,"about to glide image");

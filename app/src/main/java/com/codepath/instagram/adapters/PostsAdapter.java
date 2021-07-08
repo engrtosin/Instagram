@@ -1,7 +1,6 @@
 package com.codepath.instagram.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,11 +10,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.instagram.R;
 import com.codepath.instagram.models.Post;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 
@@ -35,7 +36,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     public interface PostsAdapterListener {
         void postClicked(Post post);
         void userClicked(ParseUser user);
-        void postLiked(Post post);
+        void postLiked(boolean isLiked, Post post) throws ParseException;
     }
 
     public void setListener(PostsAdapterListener mListener) {
@@ -121,7 +122,30 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             ivLikeBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.postLiked(containedPost);
+                    if (containedPost.getCurrentUserLiked()) {
+                        // user has liked. make user unlike
+                        Log.i(TAG,"user has liked, make the user unlike");
+                        ivLikeBtn.setImageResource(R.drawable.ufi_heart);
+                        ivLikeBtn.setColorFilter(ContextCompat.getColor(context, R.color.black), android.graphics.PorterDuff.Mode.SRC_IN);
+                        // tell the listener that user liked post before
+                        try {
+                            mListener.postLiked(true,containedPost);
+                        } catch (ParseException e) {
+                            Log.e(TAG,"error posting like " + e.getMessage(),e);
+                        }
+                    }
+                    else {
+                        // user did not like. make user like
+                        ivLikeBtn.setImageResource(R.drawable.ufi_heart_active);
+                        ivLikeBtn.setColorFilter(ContextCompat.getColor(context, R.color.medium_red), android.graphics.PorterDuff.Mode.SRC_IN);
+                        // tell the listener that user did not like post before
+                        try {
+                            mListener.postLiked(false,containedPost);
+                        } catch (ParseException e) {
+                            Log.e(TAG,"error posting like " + e.getMessage(),e);
+                        }
+                    }
+                    tvLikesCount.setText(containedPost.getStringLikeCount());
                 }
             });
         }
@@ -135,7 +159,17 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvDescription.setText(Html.fromHtml(boldUser + description));
             String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
             tvTimestamp.setText(timeAgo);
-            tvLikesCount.setText(post.getLikeCount());
+            tvLikesCount.setText(post.getStringLikeCount());
+            if (containedPost.getCurrentUserLiked()) {
+                // user has liked.
+                ivLikeBtn.setImageResource(R.drawable.ufi_heart_active);
+                ivLikeBtn.setColorFilter(ContextCompat.getColor(context, R.color.medium_red), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+            else {
+                // user did not like
+                ivLikeBtn.setImageResource(R.drawable.ufi_heart);
+                ivLikeBtn.setColorFilter(ContextCompat.getColor(context, R.color.black), android.graphics.PorterDuff.Mode.SRC_IN);
+            }
             ParseFile image = post.getImage();
             if (image != null) {
                 Log.i(TAG,"about to glide image");

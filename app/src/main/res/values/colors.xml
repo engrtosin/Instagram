@@ -10,4 +10,5 @@
     <color name="signup_green">#35C83B</color>
     <color name="login_blue">#1896FA</color>
     <color name="boundary_gray">#DCDCDC</color>
+    <color name="medium_red">#EA094E</color>
 </resources>

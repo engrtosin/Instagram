@@ -9,10 +9,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.codepath.instagram.databinding.ActivityLoginBinding;
+import com.codepath.instagram.models.Post;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
+
+import org.json.JSONException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,6 +32,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(view);
 
         if (ParseUser.getCurrentUser() != null) {
+            try {
+                Post.getCurrUserPostsLikedFromDB();
+            } catch (JSONException e) {
+                Log.e(TAG,"error getting liked posts list from DB" + e.getMessage(), e);
+            }
             goMainActivity();
         }
 

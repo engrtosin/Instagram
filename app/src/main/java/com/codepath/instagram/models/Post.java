@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.parse.Parse;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -27,24 +28,42 @@ public class Post extends ParseObject {
     public static final String KEY_USER = "user";
     public static final String KEY_LIKE_COUNT = "likeCount";
     public static final String KEY_POSTS_LIKED = "postsLiked";
+    public static final String KEY_USERS_LIKING = "usersLikingThis";
     public static final int MAX_DESC_LENGTH = 100;
+    private static final String TAG = "PostModel";
 
     public boolean currentUserLikedThis;
     public static List<String> allPostsCurrentUserLiked;
+    public List<String> allUsersLikingThis;
     public ParseUser currentUser;
+    public int likeCount;
 
     public static void getCurrUserPostsLikedFromDB() throws JSONException {
         ParseUser currentUser = ParseUser.getCurrentUser();
         allPostsCurrentUserLiked = new ArrayList<>();
         if (currentUser.has(KEY_POSTS_LIKED)) {
             JSONArray postsJson = currentUser.getJSONArray(KEY_POSTS_LIKED);
+            Log.i(TAG,postsJson.toString());
             for (int i = 0; i < postsJson.length(); i++) {
-                allPostsCurrentUserLiked.add(postsJson.getJSONObject(i).getString("post"));
+                Log.i(TAG,"jsonObject to string: " + postsJson.getString(i));
+                allPostsCurrentUserLiked.add(postsJson.getString(i));
             }
         }
     }
 
-    public static void updateCurrUserPostsLikedInDB(boolean isRemove, String id) {
+    public void getUsersLikingThisFromDB() throws JSONException {
+        allUsersLikingThis = new ArrayList<>();
+        if (this.has(KEY_USERS_LIKING)) {
+            JSONArray userJSONArray = getJSONArray(KEY_USERS_LIKING);
+            Log.i(TAG,userJSONArray.toString());
+            for (int i = 0; i < userJSONArray.length(); i++) {
+                Log.i(TAG,"jsonObject to string: " + userJSONArray.getString(i));
+                allUsersLikingThis.add(userJSONArray.getString(i));
+            }
+        }
+    }
+
+    public static void updateCurrUserPostsLikedInDB(boolean isRemove, String id) throws ParseException {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (isRemove) {
             allPostsCurrentUserLiked.remove(id);
@@ -54,6 +73,21 @@ public class Post extends ParseObject {
             allPostsCurrentUserLiked.add(id);
             currentUser.add(KEY_POSTS_LIKED,id);
         }
+        currentUser.save();
+    }
+
+    public void updateUsersLikingThisInDB(boolean isRemove, String id) throws ParseException {
+        if (isRemove) {
+            allUsersLikingThis.remove(id);
+            removeAll(KEY_USERS_LIKING, Arrays.asList(id));
+        }
+        else {
+            if (!allUsersLikingThis.contains(id)) {
+                allUsersLikingThis.add(id);
+            }
+            addUnique(KEY_USERS_LIKING,id);
+        }
+        save();
     }
 
     public String getDescription(boolean isFull) {
@@ -87,8 +121,8 @@ public class Post extends ParseObject {
         put(KEY_USER, user);
     }
 
-    public String getLikeCount() {
-        int likeCount = getInt(KEY_LIKE_COUNT);
+    public String getStringLikeCount() {
+        Log.i(TAG,"like count in getStringLikeCount: " + likeCount);
         if (likeCount == 0) {
             return "No like";
         }
@@ -99,11 +133,17 @@ public class Post extends ParseObject {
     }
 
     public void setLikeCount(int likeCount) {
-        put(KEY_LIKE_COUNT, likeCount);
+        Log.i(TAG,"set like count in setLikeCount: " + likeCount);
+        this.likeCount = likeCount;
+    }
+
+    public int getLikeCount() {
+        return likeCount;
     }
 
     public boolean getCurrentUserLiked() {
-        return false;
+        Log.i(TAG,"did user like: " + String.valueOf(allUsersLikingThis.contains(ParseUser.getCurrentUser().getObjectId())));
+        return allUsersLikingThis.contains(ParseUser.getCurrentUser().getObjectId());
     }
 
     public static String calculateTimeAgo(Date createdAt) {
@@ -140,5 +180,10 @@ public class Post extends ParseObject {
         }
 
         return "";
+    }
+
+    public void setInitialLikeCount() throws JSONException {
+        getUsersLikingThisFromDB();
+        likeCount = allUsersLikingThis.size();
     }
 }
