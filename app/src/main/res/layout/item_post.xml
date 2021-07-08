@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_post"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
@@ -90,16 +91,16 @@
 
         <ImageView
             android:id="@+id/ivLikeBtn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginStart="0dp"
             android:layout_marginEnd="10dp"
             app:srcCompat="@drawable/ufi_heart" />
 
         <ImageView
             android:id="@+id/ivCommentBtn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="10dp"
             android:layout_toEndOf="@+id/ivLikeBtn"
@@ -107,8 +108,8 @@
 
         <ImageView
             android:id="@+id/ivDirectMsg"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="10dp"
             android:layout_toEndOf="@id/ivCommentBtn"
@@ -116,8 +117,8 @@
 
         <ImageView
             android:id="@+id/ivSavePostBtn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="5dp"
             app:srcCompat="@drawable/ufi_save" />

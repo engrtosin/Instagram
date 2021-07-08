@@ -46,7 +46,6 @@ public class FeedActivity extends AppCompatActivity {
     final FragmentManager fragmentManager = getSupportFragmentManager();
     FeedFragment.FeedFragmentInterface fragmentListener;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +62,7 @@ public class FeedActivity extends AppCompatActivity {
             @Override
             public void goToFragment(FeedFragment toFragment, Parcelable extraInfo) {
                 // this method should not be used when button navigation can be used
+                toFragment.setListener(fragmentListener);
                 if (toFragment instanceof PostDetailsFragment) {
                     Bundle args = new Bundle();
                     args.putParcelable(getString(R.string.post_object_key),extraInfo);
@@ -73,6 +73,9 @@ public class FeedActivity extends AppCompatActivity {
                     Bundle args = new Bundle();
                     args.putParcelable(Post.KEY_USER,extraInfo);
                     toFragment.setArguments(args);
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                }
+                else if (toFragment instanceof PostsFragment) {
                     fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
                 }
             }
@@ -100,7 +103,6 @@ public class FeedActivity extends AppCompatActivity {
                         break;
                     default:
                         fragment = new ComposeFragment();
-                        fragment.setListener(fragmentListener);
                         break;
                 }
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();

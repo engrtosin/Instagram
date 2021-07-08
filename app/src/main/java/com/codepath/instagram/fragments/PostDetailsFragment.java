@@ -20,6 +20,7 @@ import com.codepath.instagram.databinding.FragmentPostDetailsBinding;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
 import com.codepath.instagram.models.Post;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
 import org.parceler.Parcels;
@@ -59,6 +60,23 @@ public class PostDetailsFragment extends FeedFragment {
         super.onViewCreated(view, savedInstanceState);
 
         bind(containedPost);
+        setViewListeners();
+    }
+
+    private void setViewListeners() {
+        binding.ivBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.goToFragment(new PostsFragment(),null);
+            }
+        });
+        binding.ivLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseUser.logOut();
+                goLoginActivity();
+            }
+        });
     }
 
     public void bind(Post post) {
@@ -69,6 +87,7 @@ public class PostDetailsFragment extends FeedFragment {
         binding.tvDescription.setText(Html.fromHtml(boldUser + description));
         String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
         binding.tvTimestamp.setText(timeAgo);
+        binding.tvLikesCount.setText(post.getLikeCount());
         ParseFile image = post.getImage();
         if (image != null) {
             Log.i(TAG,"about to glide image");

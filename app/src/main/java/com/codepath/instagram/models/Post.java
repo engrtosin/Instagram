@@ -8,9 +8,15 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.parceler.Parcel;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @Parcel(analyze = Post.class)
 @ParseClassName("Post")
@@ -19,7 +25,36 @@ public class Post extends ParseObject {
     public static final String KEY_DESCRIPTION = "description";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_USER = "user";
+    public static final String KEY_LIKE_COUNT = "likeCount";
+    public static final String KEY_POSTS_LIKED = "postsLiked";
     public static final int MAX_DESC_LENGTH = 100;
+
+    public boolean currentUserLikedThis;
+    public static List<String> allPostsCurrentUserLiked;
+    public ParseUser currentUser;
+
+    public static void getCurrUserPostsLikedFromDB() throws JSONException {
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        allPostsCurrentUserLiked = new ArrayList<>();
+        if (currentUser.has(KEY_POSTS_LIKED)) {
+            JSONArray postsJson = currentUser.getJSONArray(KEY_POSTS_LIKED);
+            for (int i = 0; i < postsJson.length(); i++) {
+                allPostsCurrentUserLiked.add(postsJson.getJSONObject(i).getString("post"));
+            }
+        }
+    }
+
+    public static void updateCurrUserPostsLikedInDB(boolean isRemove, String id) {
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (isRemove) {
+            allPostsCurrentUserLiked.remove(id);
+            currentUser.removeAll(KEY_POSTS_LIKED, Arrays.asList(id));
+        }
+        else {
+            allPostsCurrentUserLiked.add(id);
+            currentUser.add(KEY_POSTS_LIKED,id);
+        }
+    }
 
     public String getDescription(boolean isFull) {
 
@@ -53,7 +88,22 @@ public class Post extends ParseObject {
     }
 
     public String getLikeCount() {
-        return "likes";
+        int likeCount = getInt(KEY_LIKE_COUNT);
+        if (likeCount == 0) {
+            return "No like";
+        }
+        if (likeCount == 1) {
+            return "1 like";
+        }
+        return likeCount + " likes";
+    }
+
+    public void setLikeCount(int likeCount) {
+        put(KEY_LIKE_COUNT, likeCount);
+    }
+
+    public boolean getCurrentUserLiked() {
+        return false;
     }
 
     public static String calculateTimeAgo(Date createdAt) {

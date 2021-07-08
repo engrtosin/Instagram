@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -42,6 +43,7 @@ public class PostsFragment extends FeedFragment {
 
     public static final String TAG = "PostsFragment";
     public static final int MAX_POST_NUM = 20;
+    public static final int FRAGMENT_SPAN_COUNT = 1;
 
     protected PostsAdapter adapter;
     protected List<Post> allPosts;
@@ -67,11 +69,11 @@ public class PostsFragment extends FeedFragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        LinearLayoutManager llManager = new LinearLayoutManager(getContext());
+        GridLayoutManager glManager = new GridLayoutManager(getContext(),FRAGMENT_SPAN_COUNT, GridLayoutManager.VERTICAL, false);
         allPosts = new ArrayList<>();
         adapter = new PostsAdapter(getContext(), allPosts);
         binding.rvPosts.setAdapter(adapter);
-        binding.rvPosts.setLayoutManager(llManager);
+        binding.rvPosts.setLayoutManager(glManager);
 
         adapter.setListener(new PostsAdapter.PostsAdapterListener() {
             // TODO: Use and interface instead
@@ -84,6 +86,11 @@ public class PostsFragment extends FeedFragment {
             public void userClicked(ParseUser user) {
                 Log.i(TAG,"user clicked: going to profile");
                 listener.goToFragment(new ProfileFragment(), Parcels.wrap(user));
+            }
+
+            @Override
+            public void postLiked(Post post) {
+                Log.i(TAG,"user liked: going to POST to server");
             }
         });
 
@@ -117,7 +124,7 @@ public class PostsFragment extends FeedFragment {
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
 
-        scrollListener = new EndlessRecyclerViewScrollListener(llManager) {
+        scrollListener = new EndlessRecyclerViewScrollListener(glManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 fetchOlderTweets();
@@ -172,12 +179,5 @@ public class PostsFragment extends FeedFragment {
                 binding.swipeContainer.setRefreshing(false);
             }
         });
-    }
-
-    protected void goLoginActivity() {
-        // TODO: Change this to use an interface
-        Intent i = new Intent(getActivity(), LoginActivity.class);
-        startActivity(i);
-        getActivity().finish();
     }
 }

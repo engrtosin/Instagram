@@ -35,6 +35,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     public interface PostsAdapterListener {
         void postClicked(Post post);
         void userClicked(ParseUser user);
+        void postLiked(Post post);
     }
 
     public void setListener(PostsAdapterListener mListener) {
@@ -86,6 +87,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private Post containedPost;
         private ImageView ivUserPhoto;
         private TextView tvTimestamp;
+        private TextView tvLikesCount;
+        private ImageView ivLikeBtn;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -94,7 +97,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvDescription = itemView.findViewById(R.id.tvDescription);
             ivUserPhoto = itemView.findViewById(R.id.ivUserPhoto);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
+            tvLikesCount = itemView.findViewById(R.id.tvLikesCount);
+            ivLikeBtn = itemView.findViewById(R.id.ivLikeBtn);
 
+            setViewClickListeners();
+        }
+
+        private void setViewClickListeners() {
             tvUsername.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -108,6 +117,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                     mListener.userClicked(containedPost.getUser());
                 }
             });
+
+            ivLikeBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.postLiked(containedPost);
+                }
+            });
         }
 
         public void bind(Post post) {
@@ -119,6 +135,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvDescription.setText(Html.fromHtml(boldUser + description));
             String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
             tvTimestamp.setText(timeAgo);
+            tvLikesCount.setText(post.getLikeCount());
             ParseFile image = post.getImage();
             if (image != null) {
                 Log.i(TAG,"about to glide image");

@@ -72,6 +72,8 @@ public class ComposeFragment extends FeedFragment {
         binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                binding.pbLoading.setVisibility(View.VISIBLE);
+                Log.i(TAG,"wants to submit");
                 String description = binding.etDescription.getText().toString();
                 if (description.isEmpty()) {
                     Toast.makeText(getContext(), "Description cannot be empty.", Toast.LENGTH_SHORT).show();
@@ -83,6 +85,8 @@ public class ComposeFragment extends FeedFragment {
                 }
                 ParseUser currentUser = ParseUser.getCurrentUser();
                 savePost(description,currentUser,photoFile);
+                binding.pbLoading.setVisibility(View.INVISIBLE);
+                listener.goToFragment(new PostsFragment(), null);
             }
         });
 
@@ -195,5 +199,11 @@ public class ComposeFragment extends FeedFragment {
     @Override
     public void setListener(FeedFragmentInterface listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
