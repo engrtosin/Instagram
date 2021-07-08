@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.codepath.instagram.R;
 import com.codepath.instagram.models.Post;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +33,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     private PostsAdapterListener mListener;
 
     public interface PostsAdapterListener {
-        public void postClicked(Post post);
+        void postClicked(Post post);
+        void userClicked(ParseUser user);
     }
 
     public void setListener(PostsAdapterListener mListener) {
@@ -92,6 +94,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvDescription = itemView.findViewById(R.id.tvDescription);
             ivUserPhoto = itemView.findViewById(R.id.ivUserPhoto);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
+
+            tvUsername.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.userClicked(containedPost.getUser());
+                }
+            });
+
+            ivUserPhoto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.userClicked(containedPost.getUser());
+                }
+            });
         }
 
         public void bind(Post post) {

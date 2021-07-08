@@ -24,6 +24,7 @@ import com.codepath.instagram.databinding.ActivityFeedBinding;
 import com.codepath.instagram.fragments.ComposeFragment;
 import com.codepath.instagram.fragments.PostDetailsFragment;
 import com.codepath.instagram.fragments.PostsFragment;
+import com.codepath.instagram.fragments.ProfileFragment;
 import com.codepath.instagram.models.Post;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
@@ -40,13 +41,8 @@ import java.util.List;
 public class FeedActivity extends AppCompatActivity {
 
     public static final String TAG = "FeedActivity";
-    private static final int MAX_POST_NUM = 20;
-    public static int COMPOSE_REQUEST_CODE = 12;
 
-    protected PostsAdapter adapter;
-    protected List<Post> allPosts;
     ActivityFeedBinding binding;
-    private EndlessRecyclerViewScrollListener scrollListener;
     final FragmentManager fragmentManager = getSupportFragmentManager();
     FeedFragment.FeedFragmentInterface fragmentListener;
 
@@ -73,6 +69,12 @@ public class FeedActivity extends AppCompatActivity {
                     toFragment.setArguments(args);
                     fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
                 }
+                else if (toFragment instanceof ProfileFragment) {
+                    Bundle args = new Bundle();
+                    args.putParcelable(Post.KEY_USER,extraInfo);
+                    toFragment.setArguments(args);
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                }
             }
         };
 
@@ -90,7 +92,10 @@ public class FeedActivity extends AppCompatActivity {
                         fragment.setListener(fragmentListener);
                         break;
                     case R.id.action_profile:
-                        fragment = new ComposeFragment();
+                        fragment = new ProfileFragment();
+                        Bundle args = new Bundle();
+                        args.putParcelable(Post.KEY_USER,Parcels.wrap(ParseUser.getCurrentUser()));
+                        fragment.setArguments(args);
                         fragment.setListener(fragmentListener);
                         break;
                     default:

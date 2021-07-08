@@ -41,13 +41,12 @@ import java.util.List;
 public class PostsFragment extends FeedFragment {
 
     public static final String TAG = "PostsFragment";
-    private static final int MAX_POST_NUM = 20;
+    public static final int MAX_POST_NUM = 20;
 
     protected PostsAdapter adapter;
     protected List<Post> allPosts;
     FragmentPostsBinding binding;
-    FeedFragmentInterface feedFragmentListener;
-    private EndlessRecyclerViewScrollListener scrollListener;
+    protected EndlessRecyclerViewScrollListener scrollListener;
 
     public PostsFragment() {
         // Required empty public constructor
@@ -79,6 +78,12 @@ public class PostsFragment extends FeedFragment {
             @Override
             public void postClicked(Post post) {
                 listener.goToFragment(new PostDetailsFragment(), Parcels.wrap(post));
+            }
+
+            @Override
+            public void userClicked(ParseUser user) {
+                Log.i(TAG,"user clicked: going to profile");
+                listener.goToFragment(new ProfileFragment(), Parcels.wrap(user));
             }
         });
 
@@ -122,7 +127,7 @@ public class PostsFragment extends FeedFragment {
         queryPosts();
     }
 
-    private void fetchOlderTweets() {
+    protected void fetchOlderTweets() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         // limit query to latest 20 items
@@ -148,7 +153,7 @@ public class PostsFragment extends FeedFragment {
 //
 //    }
 
-    private void queryPosts() {
+    protected void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         // limit query to latest 20 items
@@ -169,10 +174,10 @@ public class PostsFragment extends FeedFragment {
         });
     }
 
-    private void goLoginActivity() {
+    protected void goLoginActivity() {
         // TODO: Change this to use an interface
         Intent i = new Intent(getActivity(), LoginActivity.class);
         startActivity(i);
-//        finish();
+        getActivity().finish();
     }
 }
