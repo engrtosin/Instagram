@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.codepath.instagram.BitmapScaler;
@@ -24,6 +26,7 @@ import com.codepath.instagram.FeedFragment;
 import com.codepath.instagram.R;
 import com.codepath.instagram.activities.ComposePostActivity;
 import com.codepath.instagram.databinding.ActivityComposePostBinding;
+import com.codepath.instagram.databinding.FragmentCommentsBinding;
 import com.codepath.instagram.databinding.FragmentComposeBinding;
 import com.codepath.instagram.models.Post;
 import com.parse.ParseException;
@@ -32,6 +35,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -68,7 +72,6 @@ public class ComposeFragment extends FeedFragment {
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding = FragmentComposeBinding.inflate(getLayoutInflater());
         binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,10 +92,11 @@ public class ComposeFragment extends FeedFragment {
                 listener.goToFragment(new PostsFragment(), null);
             }
         });
-
+//        Button btnTakePicture = (Button) view.findViewById(R.id.btnTakePicture);
         binding.btnTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG,"onCLicked");
                 launchCamera();
             }
         });
@@ -180,6 +184,7 @@ public class ComposeFragment extends FeedFragment {
         post.setDescription(description);
         post.setImage(new ParseFile(photoFile));
         post.setUser(currentUser);
+        post.setComments(new JSONArray());
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {

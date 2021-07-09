@@ -21,6 +21,7 @@ import com.codepath.instagram.FeedFragment;
 import com.codepath.instagram.R;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.ActivityFeedBinding;
+import com.codepath.instagram.fragments.CommentsFragment;
 import com.codepath.instagram.fragments.ComposeFragment;
 import com.codepath.instagram.fragments.PostDetailsFragment;
 import com.codepath.instagram.fragments.PostsFragment;
@@ -86,6 +87,13 @@ public class FeedActivity extends AppCompatActivity {
                 else if (toFragment instanceof PostsFragment) {
                     binding.bottomNavigation.setSelectedItemId(R.id.action_home);
                 }
+                else if (toFragment instanceof CommentsFragment) {
+                    binding.bottomNavigation.setVisibility(View.GONE);
+                    Bundle args = new Bundle();
+                    args.putParcelable(getString(R.string.post_object_key),extraInfo);
+                    toFragment.setArguments(args);
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                }
             }
         };
 
@@ -141,9 +149,23 @@ public class FeedActivity extends AppCompatActivity {
                     binding.bottomNavigation.setSelectedItemId(R.id.action_profile);
                 }
             }
-        } else {
+        }
+        else if (currentFragment instanceof CommentsFragment) {
+            Log.i(TAG,"Back pressed in comments");
+            binding.bottomNavigation.setVisibility(View.VISIBLE);
+            if (previousFragment != null) {
+                Log.i(TAG,"previous: " + previousFragment.getClass());
+                if (previousFragment.getClass().equals(PostsFragment.class)) {
+                    binding.bottomNavigation.setSelectedItemId(R.id.action_home);
+                }
+                else if (previousFragment.getClass().equals(ProfileFragment.class)) {
+                    Log.i(TAG,"while previously in profile fragment");
+                    binding.bottomNavigation.setSelectedItemId(R.id.action_profile);
+                }
+            }
+        }
+        else {
             super.onBackPressed();
         }
-
     }
 }

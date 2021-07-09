@@ -2,11 +2,13 @@ package com.codepath.instagram.models;
 
 import android.util.Log;
 
+import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -31,12 +33,14 @@ public class Post extends ParseObject {
     public static final String KEY_USERS_LIKING = "usersLikingThis";
     public static final int MAX_DESC_LENGTH = 100;
     private static final String TAG = "PostModel";
+    public static final String KEY_COMMENTS = "comments";
 
     public boolean currentUserLikedThis;
     public static List<String> allPostsCurrentUserLiked;
     public List<String> allUsersLikingThis;
     public ParseUser currentUser;
     public int likeCount;
+    public List<Comment> allComments;
 
     public static void getCurrUserPostsLikedFromDB() throws JSONException {
         ParseUser currentUser = ParseUser.getCurrentUser();
@@ -61,6 +65,23 @@ public class Post extends ParseObject {
                 allUsersLikingThis.add(userJSONArray.getString(i));
             }
         }
+    }
+
+    public void getAllCommentsFromDB() throws JSONException {
+        if (has(KEY_COMMENTS)) {
+            Log.i(TAG,get(KEY_COMMENTS).getClass().toString());
+        }
+        allComments = commentsFromArray((List<String>) get(KEY_COMMENTS));
+    }
+
+    public static List<Comment> commentsFromArray(List<String> commentIds) throws JSONException {
+        List<Comment> comments = new ArrayList<>();
+        Log.i(TAG,commentIds.toString());
+        for (int i = 0; i < commentIds.size(); i++) {
+            Log.i(TAG,"comment Id to string: " + commentIds.get(i));
+            comments.add(Comment.getCommentFromId(commentIds.get(i)));
+        }
+        return comments;
     }
 
     public static void updateCurrUserPostsLikedInDB(boolean isRemove, String id) throws ParseException {
@@ -185,5 +206,9 @@ public class Post extends ParseObject {
     public void setInitialLikeCount() throws JSONException {
         getUsersLikingThisFromDB();
         likeCount = allUsersLikingThis.size();
+    }
+
+    public void setComments(JSONArray jsonArray) {
+        put(KEY_COMMENTS,jsonArray);
     }
 }

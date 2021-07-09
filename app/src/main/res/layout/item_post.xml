@@ -141,15 +141,74 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/tvLikesCount"
         android:layout_marginStart="15dp"
-        android:layout_marginBottom="8dp"
         android:textColor="@color/black"
         android:textSize="14sp"
         tools:text="Some caption for this photo." />
 
+    <TextView
+        android:id="@+id/tvSeeComments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvDescription"
+        android:layout_marginStart="15dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:text="See comments"/>
+
+    <RelativeLayout
+        android:id="@+id/rlNewComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSeeComments"
+        android:layout_alignParentStart="true" >
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvCurrUserPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            app:cardCornerRadius="14dp">
+
+            <ImageView
+                android:id="@+id/ivCurrUserPhoto"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/default_user_avatar" />
+        </androidx.cardview.widget.CardView>
+
+        <EditText
+            android:id="@+id/etNewCommentTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/cvCurrUserPhoto"
+            android:layout_toStartOf="@id/sendCompose"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/black"
+            android:inputType="textMultiLine"
+            android:textSize="14sp"
+            android:background="@drawable/rounded_text_rectangle"
+            android:hint="Add a comment" />
+
+        <ImageView
+            android:id="@+id/sendCompose"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            app:srcCompat="@drawable/direct" />
+    </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/tvDescription"
+        android:layout_below="@+id/rlNewComment"
         android:layout_marginTop="10dp"
         android:background="#c0c0c0" />
 </RelativeLayout>

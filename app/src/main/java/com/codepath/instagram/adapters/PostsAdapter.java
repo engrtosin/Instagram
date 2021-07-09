@@ -6,8 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.instagram.R;
+import com.codepath.instagram.models.Comment;
 import com.codepath.instagram.models.Post;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -37,6 +40,8 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         void postClicked(Post post);
         void userClicked(ParseUser user);
         void postLiked(boolean isLiked, Post post) throws ParseException;
+        void seeCommentsClicked(Post post);
+        void createNewComment(String commentDescription, Post containedPost);
     }
 
     public void setListener(PostsAdapterListener mListener) {
@@ -90,6 +95,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private TextView tvTimestamp;
         private TextView tvLikesCount;
         private ImageView ivLikeBtn;
+        private TextView tvSeeComments;
+        private ImageView sendCompose;
+        private EditText etNewCommentTxt;
+        private ImageView ivCommentBtn;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -100,6 +109,10 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             tvLikesCount = itemView.findViewById(R.id.tvLikesCount);
             ivLikeBtn = itemView.findViewById(R.id.ivLikeBtn);
+            tvSeeComments = itemView.findViewById(R.id.tvSeeComments);
+            sendCompose = itemView.findViewById(R.id.sendCompose);
+            etNewCommentTxt = itemView.findViewById(R.id.etNewCommentTxt);
+            ivCommentBtn = itemView.findViewById(R.id.ivCommentBtn);
 
             setViewClickListeners();
         }
@@ -116,6 +129,32 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 @Override
                 public void onClick(View v) {
                     mListener.userClicked(containedPost.getUser());
+                }
+            });
+
+            tvSeeComments.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.seeCommentsClicked(containedPost);
+                }
+            });
+
+            ivCommentBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    etNewCommentTxt.requestFocus();
+                }
+            });
+
+            sendCompose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String commentDescription = etNewCommentTxt.getText().toString();
+                    if (commentDescription.isEmpty()) {
+                        Toast.makeText(context, "Comment box cannot be empty!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    mListener.createNewComment(commentDescription, containedPost);
                 }
             });
 

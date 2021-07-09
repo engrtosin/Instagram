@@ -17,6 +17,7 @@ import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.FeedFragment;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
+import com.codepath.instagram.models.Comment;
 import com.codepath.instagram.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -39,6 +40,7 @@ public class PostsFragment extends FeedFragment {
     protected PostsAdapter adapter;
     protected List<Post> allPosts;
     FragmentPostsBinding binding;
+    GridLayoutManager glManager;
     protected EndlessRecyclerViewScrollListener scrollListener;
 
     public PostsFragment() {
@@ -60,12 +62,18 @@ public class PostsFragment extends FeedFragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        GridLayoutManager glManager = new GridLayoutManager(getContext(),FRAGMENT_SPAN_COUNT, GridLayoutManager.VERTICAL, false);
+        glManager = new GridLayoutManager(getContext(),FRAGMENT_SPAN_COUNT, GridLayoutManager.VERTICAL, false);
         allPosts = new ArrayList<>();
         adapter = new PostsAdapter(getContext(), allPosts);
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(glManager);
 
+        setButtonClickListeners();
+        // TODO: Change this to be called only if posts are reloaded
+        queryPosts();
+    }
+
+    public void setButtonClickListeners() {
         adapter.setListener(new PostsAdapter.PostsAdapterListener() {
             // TODO: Use and interface instead
             @Override
@@ -91,6 +99,17 @@ public class PostsFragment extends FeedFragment {
                     Log.i(TAG,"setting like count");
                     post.setLikeCount(post.getLikeCount() + 1);
                 }
+            }
+
+            @Override
+            public void seeCommentsClicked(Post post) {
+                listener.goToFragment(new CommentsFragment(), Parcels.wrap(post));
+            }
+
+            @Override
+            public void createNewComment(String commentDescription, Post post) {
+                Comment newComment = Comment.createNewComment(commentDescription,ParseUser.getCurrentUser(),post);
+                listener.goToFragment(new CommentsFragment(), Parcels.wrap(post));
             }
         });
 
@@ -131,8 +150,6 @@ public class PostsFragment extends FeedFragment {
             }
         };
         binding.rvPosts.addOnScrollListener(scrollListener);
-        // TODO: Change this to be called only if posts are reloaded
-        queryPosts();
     }
 
     protected void fetchOlderTweets() {
@@ -164,6 +181,7 @@ public class PostsFragment extends FeedFragment {
     protected void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
+        query.include(Post.KEY_COMMENTS);
         // limit query to latest 20 items
         query.setLimit(MAX_POST_NUM);
         query.orderByDescending(Post.KEY_CREATED_AT);
@@ -178,6 +196,7 @@ public class PostsFragment extends FeedFragment {
                 for (Post post: posts) {
                     try {
                         post.setInitialLikeCount();
+                        post.getAllCommentsFromDB();
                     } catch (JSONException jsonException) {
                         Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
                     }

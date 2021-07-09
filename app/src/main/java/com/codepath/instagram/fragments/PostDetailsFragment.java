@@ -79,6 +79,14 @@ public class PostDetailsFragment extends FeedFragment {
                 goLoginActivity();
             }
         });
+
+        binding.tvSeeComments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.goToFragment(new CommentsFragment(), Parcels.wrap(containedPost));
+            }
+        });
+
         binding.ivLikeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +106,13 @@ public class PostDetailsFragment extends FeedFragment {
                     whenContainedPostLiked();
                 }
                 binding.tvLikesCount.setText(containedPost.getStringLikeCount());
+            }
+        });
+
+        binding.ivCommentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                binding.etNewCommentTxt.requestFocus();
             }
         });
     }

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.instagram.R;
+import com.codepath.instagram.models.Comment;
 import com.codepath.instagram.models.Post;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -30,19 +31,19 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
     public static final String USER_PIC_KEY = "userPic";
 
     private Context context;
-    private List<Post> comments;
+    private List<Comment> comments;
     private CommentsAdapterListener mListener;
 
     public interface CommentsAdapterListener {
         void userClicked(ParseUser user);
-        void commentLiked(boolean isLiked, Post post) throws ParseException;
+        void commentLiked(boolean isLiked, Comment comment) throws ParseException;
     }
 
     public void setListener(CommentsAdapterListener mListener) {
         this.mListener = mListener;
     }
 
-    public CommentsAdapter(Context context, List<Post> comments) {
+    public CommentsAdapter(Context context, List<Comment> comments) {
         this.context = context;
         this.comments = comments;
         this.mListener = mListener;
@@ -55,8 +56,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
     }
 
     // Add a list of comments -- change to type used
-    public void addAll(List<Post> list) {
+    public void addAll(List<Comment> list) {
         comments.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void add(int position, Comment comment) {
+        comments.add(position, comment);
         notifyDataSetChanged();
     }
 
@@ -70,7 +76,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull @NotNull CommentsAdapter.ViewHolder holder, int position) {
-        Post comment = comments.get(position);
+        Comment comment = comments.get(position);
         holder.bind(comment);
     }
 
@@ -81,10 +87,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tvUsername;
-        private ImageView ivPostImage;
         private TextView tvDescription;
-        private Post containedComment;
+        private Comment containedComment;
         private ImageView ivUserPhoto;
         private TextView tvTimestamp;
         private TextView tvLikesCount;
@@ -92,8 +96,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvUsername = itemView.findViewById(R.id.tvUsername);
-            ivPostImage = itemView.findViewById(R.id.ivPostImage);
             tvDescription = itemView.findViewById(R.id.tvDescription);
             ivUserPhoto = itemView.findViewById(R.id.ivUserPhoto);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
@@ -104,12 +106,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         }
 
         private void setViewClickListeners() {
-            tvUsername.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.userClicked(containedComment.getUser());
-                }
-            });
 
             ivUserPhoto.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -149,16 +145,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
             });
         }
 
-        public void bind(Post post) {
-            containedComment = post;
-            String username = post.getUser().getUsername();
-            tvUsername.setText(username);
+        public void bind(Comment comment) {
+            containedComment = comment;
+            String username = comment.getUser().getUsername();
             String boldUser = "<B>" + username + " </B>";
-            String description = post.getDescription(false);
+            String description = comment.getDescription(true);
             tvDescription.setText(Html.fromHtml(boldUser + description));
-            String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
+            String timeAgo = Post.calculateTimeAgo(comment.parseComment.getCreatedAt());
             tvTimestamp.setText(timeAgo);
-            tvLikesCount.setText(post.getStringLikeCount());
+            tvLikesCount.setText(comment.getStringLikeCount());
             if (containedComment.getCurrentUserLiked()) {
                 // user has liked.
                 ivLikeBtn.setImageResource(R.drawable.ufi_heart_active);
@@ -169,12 +164,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
                 ivLikeBtn.setImageResource(R.drawable.ufi_heart);
                 ivLikeBtn.setColorFilter(ContextCompat.getColor(context, R.color.black), android.graphics.PorterDuff.Mode.SRC_IN);
             }
-            ParseFile image = post.getImage();
-            if (image != null) {
-                Log.i(TAG,"about to glide image");
-                Glide.with(context).load(image.getUrl()).into(ivPostImage);
-            }
-            image = post.getUser().getParseFile(USER_PIC_KEY);
+            ParseFile image = comment.getUser().getParseFile(USER_PIC_KEY);
             if (image != null) {
                 Log.i(TAG,"about to glide user pic");
                 Glide.with(context).load(image.getUrl()).into(ivUserPhoto);

@@ -49,33 +49,7 @@ public class ProfileFragment extends PostsFragment {
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(glManager);
 
-        adapter.setListener(new PostsAdapter.PostsAdapterListener() {
-            // TODO: Use and interface instead
-            @Override
-            public void postClicked(Post post) {
-                listener.goToFragment(new PostDetailsFragment(), Parcels.wrap(post));
-            }
-
-            @Override
-            public void userClicked(ParseUser user) {
-                Log.i(TAG,"user clicked: going to profile");
-                listener.goToFragment(new ProfileFragment(), Parcels.wrap(user));
-            }
-
-            @Override
-            public void postLiked(boolean isLiked, Post post) throws ParseException {
-                Log.i(TAG,"user liked: going to POST to server");
-                post.updateUsersLikingThisInDB(isLiked,ParseUser.getCurrentUser().getObjectId());
-                if (isLiked) {
-                    Log.i(TAG,"setting like count");
-                    post.setLikeCount(post.getLikeCount() - 1);
-                }
-                else {
-                    Log.i(TAG,"setting like count");
-                    post.setLikeCount(post.getLikeCount() + 1);
-                }
-            }
-        });
+        setButtonClickListeners();
 
         RecyclerView.ItemDecoration itemDecoration = new
                 DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL);
@@ -140,6 +114,7 @@ public class ProfileFragment extends PostsFragment {
                 for (Post post: posts) {
                     try {
                         post.setInitialLikeCount();
+                        post.getAllCommentsFromDB();
                     } catch (JSONException jsonException) {
                         Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
                     }
