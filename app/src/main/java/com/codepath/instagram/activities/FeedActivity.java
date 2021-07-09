@@ -50,6 +50,15 @@ public class FeedActivity extends AppCompatActivity {
     FeedFragment currentFragment;
     FeedFragment previousFragment;
     ParseUser profileUser;
+    FeedActivityInterface myListener;
+
+    public interface FeedActivityInterface {
+        public void refreshPage();
+    }
+
+    public void setMyListener(FeedActivityInterface feedActivityListener) {
+        this.myListener = feedActivityListener;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +111,12 @@ public class FeedActivity extends AppCompatActivity {
                     toFragment.setArguments(args);
                     fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
                 }
+            }
+
+            @Override
+            public void reloadPage() {
+                Log.i(TAG,"reloading called from compose");
+                myListener.refreshPage();
             }
         };
 

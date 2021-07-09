@@ -13,6 +13,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.R;
+import com.codepath.instagram.activities.FeedActivity;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.models.Post;
 import com.parse.FindCallback;
@@ -30,9 +31,10 @@ import java.util.List;
 public class ProfileFragment extends PostsFragment {
 
     public static final String TAG = "ProfileFragment";
-    public static final int FRAGMENT_SPAN_COUNT = 1;
+    public static final int FRAGMENT_SPAN_COUNT = 2;
 
     public ParseUser user;
+    FeedActivity.FeedActivityInterface feedActivityListener;
 
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
@@ -50,6 +52,14 @@ public class ProfileFragment extends PostsFragment {
         adapter.clear();
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(glManager);
+
+        feedActivityListener = new FeedActivity.FeedActivityInterface() {
+            @Override
+            public void refreshPage() {
+                ProfileFragment.this.queryPosts();
+            }
+        };
+        ((FeedActivity) getActivity()).setMyListener(feedActivityListener);
 
         if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
             binding.ivCamera.setVisibility(View.VISIBLE);
@@ -73,7 +83,7 @@ public class ProfileFragment extends PostsFragment {
     }
 
     @Override
-    protected void queryPosts() {
+    public void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         query.include(Post.KEY_COMMENTS);

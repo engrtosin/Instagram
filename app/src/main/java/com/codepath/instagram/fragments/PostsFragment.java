@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.FeedFragment;
+import com.codepath.instagram.activities.FeedActivity;
 import com.codepath.instagram.activities.LoginActivity;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
@@ -35,7 +36,7 @@ import java.util.List;
 public class PostsFragment extends FeedFragment {
 
     public static final String TAG = "PostsFragment";
-    public static final int MAX_POST_NUM = 20;
+    public static final int MAX_POST_NUM = 5;
     public static final int FRAGMENT_SPAN_COUNT = 1;
 
     protected PostsAdapter adapter;
@@ -43,6 +44,7 @@ public class PostsFragment extends FeedFragment {
     FragmentPostsBinding binding;
     GridLayoutManager glManager;
     protected EndlessRecyclerViewScrollListener scrollListener;
+    FeedActivity.FeedActivityInterface feedActivityListener;
 
     public PostsFragment() {
         // Required empty public constructor
@@ -68,6 +70,14 @@ public class PostsFragment extends FeedFragment {
         adapter = new PostsAdapter(getContext(), allPosts);
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(glManager);
+
+        feedActivityListener = new FeedActivity.FeedActivityInterface() {
+            @Override
+            public void refreshPage() {
+                PostsFragment.this.queryPosts();
+            }
+        };
+        ((FeedActivity) getActivity()).setMyListener(feedActivityListener);
 
         setButtonClickListeners();
         // TODO: Change this to be called only if posts are reloaded
@@ -141,6 +151,7 @@ public class PostsFragment extends FeedFragment {
         scrollListener = new EndlessRecyclerViewScrollListener(glManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Log.i(TAG,"fetching old tweets in onloadmore");
                 fetchOlderTweets();
             }
         };
@@ -177,7 +188,7 @@ public class PostsFragment extends FeedFragment {
         });
     }
 
-    protected void queryPosts() {
+    public void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
         query.include(Post.KEY_COMMENTS);

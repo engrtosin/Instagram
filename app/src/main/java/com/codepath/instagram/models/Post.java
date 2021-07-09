@@ -136,7 +136,7 @@ public class Post extends ParseObject {
         String fullDescription = getString(KEY_DESCRIPTION);
         if (!isFull) {
             if (fullDescription.length() > MAX_DESC_LENGTH) {
-                return fullDescription.substring(0,MAX_DESC_LENGTH);
+                return fullDescription.substring(0,MAX_DESC_LENGTH) + "...";
             }
         }
         return fullDescription;

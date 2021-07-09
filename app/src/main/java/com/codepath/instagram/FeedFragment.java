@@ -15,6 +15,8 @@ public abstract class FeedFragment extends Fragment {
     public interface FeedFragmentInterface {
         void goToActivity(Class activityClass, Parcelable extraInfo);
         void goToFragment(FeedFragment toFragment, Parcelable extraInfo);
+
+        void reloadPage();
     }
 
     public void setListener(FeedFragmentInterface listener) {

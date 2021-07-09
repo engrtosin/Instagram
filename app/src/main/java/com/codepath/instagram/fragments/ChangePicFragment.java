@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.codepath.instagram.activities.LoginActivity;
 import com.codepath.instagram.models.Post;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -51,21 +52,25 @@ public class ChangePicFragment extends ComposeFragment {
                     Toast.makeText(getContext(), "Image cannot be empty.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                try {
-                    savePicChange();
-                } catch (ParseException e) {
-                    Log.e(TAG,"Error saving pic change: " + e.getMessage(),e);
-                }
+                Log.i(TAG,"Submit new user photo");
+                savePicChange(byteArray);
                 getActivity().onBackPressed();
             }
         });
     }
 
-    protected void savePicChange() throws ParseException {
+    protected void savePicChange(byte[] byteArray) {
         binding.pbLoading.setVisibility(View.VISIBLE);
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        currentUser.put(Post.KEY_USER_PROFILE,new ParseFile(photoFile));
-        currentUser.save();
+        LoginActivity.currentUser.put(Post.KEY_USER_PROFILE,new ParseFile(byteArray));
+        Log.i(TAG,"in save pic change");
+        LoginActivity.currentUser.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG,"Error from callback: " + e.getMessage(),e);
+                }
+            }
+        });
         binding.pbLoading.setVisibility(View.GONE);
     }
 }
