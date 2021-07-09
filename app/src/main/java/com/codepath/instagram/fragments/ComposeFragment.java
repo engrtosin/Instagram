@@ -53,6 +53,7 @@ public class ComposeFragment extends FeedFragment {
     private static final int PICK_PHOTO_CODE = 100;
     protected File photoFile;
     public String photoFileName = "photo.jpg";
+    Uri fileProvider;
 
     FragmentComposeBinding binding;
 
@@ -75,6 +76,8 @@ public class ComposeFragment extends FeedFragment {
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        photoFile = getPhotoFileUri(photoFileName);
+        fileProvider = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider", photoFile);
 
         binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,20 +113,23 @@ public class ComposeFragment extends FeedFragment {
         binding.ivAttachFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG,"Attach file for new post");
                 onPickPhoto(v);
             }
         });
     }
 
     public void onPickPhoto(View view) {
+        Log.i(TAG,"on pick photo");
         // Create intent for picking a photo from the gallery
         Intent intent = new Intent(Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
+                MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
         // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
         // So as long as the result is not null, it's safe to use the intent.
-        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
             // Bring up gallery to select a photo
+            Log.i(TAG,"Intent to media gallery");
             startActivityForResult(intent, PICK_PHOTO_CODE);
         }
     }
@@ -137,7 +143,7 @@ public class ComposeFragment extends FeedFragment {
         // wrap File object into a content provider
         // required for API >= 24
         // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
-        Uri fileProvider = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider", photoFile);
+        fileProvider = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider", photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
         // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
