@@ -141,7 +141,7 @@ public class PostDetailsFragment extends FeedFragment {
         String boldUser = "<B>" + username + " </B>";
         String description = post.getDescription(false);
         binding.tvDescription.setText(Html.fromHtml(boldUser + description));
-        String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
+        String timeAgo = post.calculateTimeAgo();
         binding.tvTimestamp.setText(timeAgo);
         binding.tvLikesCount.setText(post.getStringLikeCount());
         if (containedPost.getCurrentUserLiked()) {

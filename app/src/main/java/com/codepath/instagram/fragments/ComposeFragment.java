@@ -41,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class ComposeFragment extends FeedFragment {
 
@@ -87,7 +88,11 @@ public class ComposeFragment extends FeedFragment {
                     return;
                 }
                 ParseUser currentUser = ParseUser.getCurrentUser();
-                savePost(description,currentUser,photoFile);
+                try {
+                    savePost(description,currentUser,photoFile);
+                } catch (ParseException e) {
+                    Log.e(TAG,"could not save new post " + e.getMessage(),e);
+                }
                 binding.pbLoading.setVisibility(View.INVISIBLE);
                 listener.goToFragment(new PostsFragment(), null);
             }
@@ -179,7 +184,7 @@ public class ComposeFragment extends FeedFragment {
         fos.close();
     }
 
-    private void savePost(String description, ParseUser currentUser, File photoFile) {
+    private void savePost(String description, ParseUser currentUser, File photoFile) throws ParseException {
         Post post = new Post();
         post.setDescription(description);
         post.setImage(new ParseFile(photoFile));

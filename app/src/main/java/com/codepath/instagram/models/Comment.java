@@ -24,29 +24,31 @@ import java.util.List;
 public class Comment {
 
     public static final String KEY_DESCRIPTION = "commentBody";
-    public static final String KEY_USER = "userId";
-    public static final String KEY_POST = "postId";
+    public static final String KEY_USER_ID = "userId";
+    public static final String KEY_POST_ID = "postId";
+    public static final String KEY_USER = "user";
+    public static final String KEY_POST = "post";
     public static final String KEY_USERS_LIKING = "usersLikingThis";
     private static final String TAG = "CommentModel";
     private static final int MAX_DESC_LENGTH = 100;
     public static final String KEY_CLASS_COMMENT = "Comment";
 
     public ParseObject parseComment;
-    public List<String> allUsersLikingThis;
+    public List<String> allUsersLikingThis = new ArrayList<>();
     public int likeCount;
     public String description;
     public ParseUser user;
     public Post post;
     public Comment newComment;
 
-    public static Comment createNewComment(String description, ParseUser user, Post post) {
+    public static Comment createNewComment(String description, ParseUser user, Post post) throws ParseException {
         Comment comment = new Comment();
         comment.parseComment = new ParseObject("Comment");
         comment.parseComment.put(KEY_DESCRIPTION,description);
-        comment.parseComment.put(KEY_USER,user.getObjectId());
+        comment.parseComment.put(KEY_USER,user);
         comment.post = post;
         comment.user = user;
-        comment.parseComment.put(KEY_POST,post.getObjectId());
+        comment.parseComment.put(KEY_POST,post);
         comment.parseComment.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -55,7 +57,15 @@ public class Comment {
                 }
             }
         });
+        post.addComment(0,comment);
+        comment.allUsersLikingThis = new ArrayList<>();
         return comment;
+    }
+
+    public void initializeCommentFields() throws JSONException {
+
+        getUsersLikingThisFromDB();
+        setInitialLikeCount();
     }
 
     public static Comment getCommentFromId(String id) {
@@ -89,6 +99,8 @@ public class Comment {
         Comment comment = new Comment();
         comment.description = parseObject.getString(KEY_DESCRIPTION);
         comment.parseComment = parseObject;
+        ParseQuery query = new ParseQuery(Post.class);
+        query.include(KEY_USER);
         comment.getUsersLikingThisFromDB();
         return comment;
     }
@@ -209,7 +221,6 @@ public class Comment {
     }
 
     public void setInitialLikeCount() throws JSONException {
-        getUsersLikingThisFromDB();
         likeCount = allUsersLikingThis.size();
     }
 }

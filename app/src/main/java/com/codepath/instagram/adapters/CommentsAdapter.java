@@ -151,7 +151,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
             String boldUser = "<B>" + username + " </B>";
             String description = comment.getDescription(true);
             tvDescription.setText(Html.fromHtml(boldUser + description));
-            String timeAgo = Post.calculateTimeAgo(comment.parseComment.getCreatedAt());
+            String timeAgo = comment.calculateTimeAgo();
             tvTimestamp.setText(timeAgo);
             tvLikesCount.setText(comment.getStringLikeCount());
             if (containedComment.getCurrentUserLiked()) {

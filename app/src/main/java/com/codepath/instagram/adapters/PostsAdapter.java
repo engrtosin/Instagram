@@ -41,7 +41,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         void userClicked(ParseUser user);
         void postLiked(boolean isLiked, Post post) throws ParseException;
         void seeCommentsClicked(Post post);
-        void createNewComment(String commentDescription, Post containedPost);
+        void createNewComment(String commentDescription, Post containedPost) throws ParseException;
     }
 
     public void setListener(PostsAdapterListener mListener) {
@@ -154,7 +154,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                         Toast.makeText(context, "Comment box cannot be empty!", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    mListener.createNewComment(commentDescription, containedPost);
+                    try {
+                        mListener.createNewComment(commentDescription, containedPost);
+                    } catch (ParseException e) {
+                        Log.e(TAG,"cannot create new comment after clicking: " + e.getMessage(),e);
+                    }
                 }
             });
 
@@ -195,8 +199,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             tvUsername.setText(username);
             String boldUser = "<B>" + username + " </B>";
             String description = post.getDescription(false);
+            Log.i(TAG,description);
             tvDescription.setText(Html.fromHtml(boldUser + description));
-            String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
+            String timeAgo = post.calculateTimeAgo();
             tvTimestamp.setText(timeAgo);
             tvLikesCount.setText(post.getStringLikeCount());
             if (containedPost.getCurrentUserLiked()) {

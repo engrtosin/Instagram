@@ -107,7 +107,7 @@ public class PostsFragment extends FeedFragment {
             }
 
             @Override
-            public void createNewComment(String commentDescription, Post post) {
+            public void createNewComment(String commentDescription, Post post) throws ParseException {
                 Comment newComment = Comment.createNewComment(commentDescription,ParseUser.getCurrentUser(),post);
                 listener.goToFragment(new CommentsFragment(), Parcels.wrap(post));
             }
@@ -155,6 +155,7 @@ public class PostsFragment extends FeedFragment {
     protected void fetchOlderTweets() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
+        query.include(Post.KEY_COMMENTS);
         // limit query to latest 20 items
         query.setLimit(MAX_POST_NUM);
         query.orderByDescending(Post.KEY_CREATED_AT);
@@ -168,6 +169,13 @@ public class PostsFragment extends FeedFragment {
                 }
                 Log.i(TAG,"Done with endless scrolling.");
                 Log.i(TAG,"Success in querying posts.");
+                for (Post post: posts) {
+                    try {
+                        post.initializePostFields();
+                    } catch (JSONException jsonException) {
+                        Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
+                    }
+                }
                 adapter.addAll(posts);
                 binding.swipeContainer.setRefreshing(false);
             }
@@ -195,8 +203,7 @@ public class PostsFragment extends FeedFragment {
                 Log.i(TAG,"Success in querying posts.");
                 for (Post post: posts) {
                     try {
-                        post.setInitialLikeCount();
-                        post.getAllCommentsFromDB();
+                        post.initializePostFields();
                     } catch (JSONException jsonException) {
                         Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
                     }

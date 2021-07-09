@@ -83,6 +83,7 @@ public class CommentsFragment extends FeedFragment {
 
         bindViewDetails();
 
+
         adapter.setListener(new CommentsAdapter.CommentsAdapterListener() {
 
             @Override
@@ -115,7 +116,7 @@ public class CommentsFragment extends FeedFragment {
         String boldUser = "<B>" + username + " </B>";
         String description = post.getDescription(false);
         binding.tvDescription.setText(Html.fromHtml(boldUser + description));
-        String timeAgo = Post.calculateTimeAgo(post.getCreatedAt());
+        String timeAgo = post.calculateTimeAgo();
         binding.tvTimestamp.setText(timeAgo);
         ParseFile image = post.getImage();
         image = post.getUser().getParseFile(PostDetailsFragment.USER_PIC_KEY);
@@ -135,6 +136,13 @@ public class CommentsFragment extends FeedFragment {
             }
         });
 
+        binding.ivBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
         binding.cvCurrUserPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,12 +154,17 @@ public class CommentsFragment extends FeedFragment {
             @Override
             public void onClick(View v) {
                 String commentDescription = binding.etNewCommentTxt.getText().toString();
+                binding.etNewCommentTxt.setText("");
                 if (commentDescription.isEmpty()) {
                     Toast.makeText(getContext(), "Comment box cannot be empty!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Comment newComment = Comment.createNewComment(commentDescription,ParseUser.getCurrentUser(),post);
-                adapter.add(0, newComment);
+                try {
+                    Comment newComment = Comment.createNewComment(commentDescription,ParseUser.getCurrentUser(),post);
+                } catch (ParseException e) {
+                    Log.e(TAG,"error while creating comment after clicked compose: " + e.getMessage(),e);
+                }
+                adapter.notifyDataSetChanged();
                 binding.rvComments.smoothScrollToPosition(0);
             }
         });

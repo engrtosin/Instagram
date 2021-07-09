@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
+import com.codepath.instagram.R;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.models.Post;
 import com.parse.FindCallback;
@@ -29,7 +30,7 @@ import java.util.List;
 public class ProfileFragment extends PostsFragment {
 
     public static final String TAG = "ProfileFragment";
-    public static final int FRAGMENT_SPAN_COUNT = 2;
+    public static final int FRAGMENT_SPAN_COUNT = 1;
 
     ParseUser user;
 
@@ -46,52 +47,21 @@ public class ProfileFragment extends PostsFragment {
         GridLayoutManager glManager = new GridLayoutManager(getContext(),FRAGMENT_SPAN_COUNT, GridLayoutManager.VERTICAL, false);
         allPosts = new ArrayList<>();
         adapter = new PostsAdapter(getContext(), allPosts);
+        adapter.clear();
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(glManager);
 
+        if (user.equals(ParseUser.getCurrentUser())) {
+            binding.ivCamera.setVisibility(View.VISIBLE);
+        }
+        else {
+            binding.ivCamera.setVisibility(View.GONE);
+        }
+        binding.ivCamera.setImageResource(R.drawable.ic_baseline_person_add_24);
+        binding.ivCamera.setScaleX(1f);
+        binding.ivCamera.setScaleY(1f);
         setButtonClickListeners();
 
-        RecyclerView.ItemDecoration itemDecoration = new
-                DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL);
-        binding.rvPosts.addItemDecoration(itemDecoration);
-
-        binding.ivLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ParseUser.logOut();
-                goLoginActivity();
-            }
-        });
-
-//        binding.ivNewPost.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                goComposePostActivity();
-//            }
-//        });
-
-        binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
-                queryPosts();
-            }
-        });
-        // Configure the refreshing colors
-        binding.swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-
-        scrollListener = new EndlessRecyclerViewScrollListener(glManager) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                fetchOlderTweets();
-            }
-        };
-        binding.rvPosts.addOnScrollListener(scrollListener);
         queryPosts();
     }
 
@@ -99,6 +69,7 @@ public class ProfileFragment extends PostsFragment {
     protected void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.include(Post.KEY_USER);
+        query.include(Post.KEY_COMMENTS);
         query.whereEqualTo(Post.KEY_USER,user);
         // limit query to latest 20 items
         query.setLimit(MAX_POST_NUM);
@@ -111,15 +82,47 @@ public class ProfileFragment extends PostsFragment {
                     return;
                 }
                 Log.i(TAG,"Success in querying posts.");
+                Log.i(TAG,""+posts.size());
                 for (Post post: posts) {
                     try {
-                        post.setInitialLikeCount();
-                        post.getAllCommentsFromDB();
+                        post.initializePostFields();
                     } catch (JSONException jsonException) {
                         Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
                     }
                 }
                 adapter.clear();
+                adapter.addAll(posts);
+                binding.swipeContainer.setRefreshing(false);
+            }
+        });
+    }
+
+    @Override
+    protected void fetchOlderTweets() {
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        query.include(Post.KEY_USER);
+        query.include(Post.KEY_COMMENTS);
+        query.whereEqualTo(Post.KEY_USER,user);
+        // limit query to latest 20 items
+        query.setLimit(MAX_POST_NUM);
+        query.orderByDescending(Post.KEY_CREATED_AT);
+        query.setSkip(allPosts.size());
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG,"Failure in querying posts.",e);
+                    return;
+                }
+                Log.i(TAG,"Done with endless scrolling.");
+                Log.i(TAG,"Success in querying posts.");
+                for (Post post: posts) {
+                    try {
+                        post.initializePostFields();
+                    } catch (JSONException jsonException) {
+                        Log.e(TAG,"Error setting initial like count" + jsonException.getMessage(), jsonException);
+                    }
+                }
                 adapter.addAll(posts);
                 binding.swipeContainer.setRefreshing(false);
             }

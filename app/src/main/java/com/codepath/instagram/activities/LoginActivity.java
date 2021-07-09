@@ -32,12 +32,12 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(view);
 
         if (ParseUser.getCurrentUser() != null) {
-            try {
-                Post.getCurrUserPostsLikedFromDB();
-            } catch (JSONException e) {
-                Log.e(TAG,"error getting liked posts list from DB" + e.getMessage(), e);
-            }
-            goMainActivity();
+//            try {
+//                Post.getCurrUserPostsLikedFromDB();
+//            } catch (JSONException e) {
+//                Log.e(TAG,"error getting liked posts list from DB" + e.getMessage(), e);
+//            }
+            goFeedActivity();
         }
 
         binding.btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -91,13 +91,13 @@ public class LoginActivity extends AppCompatActivity {
                     Log.e(TAG,"Login error occured",e);
                     return;
                 }
-                goMainActivity();
+                goFeedActivity();
                 Toast.makeText(LoginActivity.this,"Successful!",Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void goMainActivity() {
+    private void goFeedActivity() {
         Intent i = new Intent(this, FeedActivity.class);
         startActivity(i);
         finish();

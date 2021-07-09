@@ -48,10 +48,12 @@ public class FeedActivity extends AppCompatActivity {
     FeedFragment.FeedFragmentInterface fragmentListener;
     FeedFragment currentFragment;
     FeedFragment previousFragment;
+    ParseUser profileUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        profileUser = ParseUser.getCurrentUser();
         binding = ActivityFeedBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
@@ -79,10 +81,8 @@ public class FeedActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
                 }
                 else if (toFragment instanceof ProfileFragment) {
-                    Bundle args = new Bundle();
-                    args.putParcelable(Post.KEY_USER,extraInfo);
-                    toFragment.setArguments(args);
-                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                    profileUser = (ParseUser) Parcels.unwrap(extraInfo);
+                    binding.bottomNavigation.setSelectedItemId(R.id.action_profile);
                 }
                 else if (toFragment instanceof PostsFragment) {
                     binding.bottomNavigation.setSelectedItemId(R.id.action_home);
@@ -113,7 +113,7 @@ public class FeedActivity extends AppCompatActivity {
                     case R.id.action_profile:
                         fragment = new ProfileFragment();
                         Bundle args = new Bundle();
-                        args.putParcelable(Post.KEY_USER,Parcels.wrap(ParseUser.getCurrentUser()));
+                        args.putParcelable(Post.KEY_USER,Parcels.wrap(profileUser));
                         fragment.setArguments(args);
                         fragment.setListener(fragmentListener);
                         break;
@@ -161,6 +161,10 @@ public class FeedActivity extends AppCompatActivity {
                 else if (previousFragment.getClass().equals(ProfileFragment.class)) {
                     Log.i(TAG,"while previously in profile fragment");
                     binding.bottomNavigation.setSelectedItemId(R.id.action_profile);
+                }
+                else if (previousFragment.getClass().equals(PostDetailsFragment.class)) {
+                    currentFragment = previousFragment;
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, previousFragment).commit();
                 }
             }
         }
