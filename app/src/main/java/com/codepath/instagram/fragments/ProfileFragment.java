@@ -72,10 +72,6 @@ public class ProfileFragment extends PostsFragment {
         queryPosts();
     }
 
-    private void updateProfilePic() {
-
-    }
-
     @Override
     protected void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);

@@ -123,13 +123,6 @@ public class PostsFragment extends FeedFragment {
             }
         });
 
-//        binding.ivNewPost.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                goComposePostActivity();
-//            }
-//        });
-
         binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -183,10 +176,6 @@ public class PostsFragment extends FeedFragment {
             }
         });
     }
-
-//    private void goComposePostActivity() {
-//
-//    }
 
     protected void queryPosts() {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);

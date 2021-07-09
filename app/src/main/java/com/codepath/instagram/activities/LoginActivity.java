@@ -40,11 +40,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(view);
 
         if (ParseUser.getCurrentUser() != null) {
-//            try {
-//                Post.getCurrUserPostsLikedFromDB();
-//            } catch (JSONException e) {
-//                Log.e(TAG,"error getting liked posts list from DB" + e.getMessage(), e);
-//            }
             currentUser = ParseUser.getCurrentUser();
             queryCurrentUser();
             goFeedActivity();
