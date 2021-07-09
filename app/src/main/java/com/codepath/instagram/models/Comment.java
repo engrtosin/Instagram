@@ -41,6 +41,7 @@ public class Comment {
     public Post post;
     public Comment newComment;
 
+    /* ------------------------------------------------------------------- */
     public static Comment createNewComment(String description, ParseUser user, Post post) throws ParseException {
         Comment comment = new Comment();
         comment.parseComment = new ParseObject("Comment");
@@ -68,43 +69,11 @@ public class Comment {
         setInitialLikeCount();
     }
 
-    public static Comment getCommentFromId(String id) {
-        final Comment[] newComment = new Comment[1];
-        ParseQuery query = ParseQuery.getQuery(KEY_CLASS_COMMENT);
-        query.include(KEY_POST);
-        query.include(KEY_USER);
-
-        query.getInBackground(id, new GetCallback() {
-            @Override
-            public void done(ParseObject object, ParseException e) {
-                try {
-                    newComment[0] = getCommentFromParseObject(object);
-                    if (e != null) {
-                        Log.e(TAG,"Error saving comment " + e.getMessage(),e);
-                    }
-                } catch (JSONException jsonException) {
-                    Log.e(TAG,"Error getting comment from parseobject " + e.getMessage(), e);
-                }
-            }
-
-            @Override
-            public void done(Object o, Throwable throwable) {
-
-            }
-        });
-        return newComment[0];
+    public void setInitialLikeCount() throws JSONException {
+        likeCount = allUsersLikingThis.size();
     }
 
-    public static Comment getCommentFromParseObject(ParseObject parseObject) throws JSONException {
-        Comment comment = new Comment();
-        comment.description = parseObject.getString(KEY_DESCRIPTION);
-        comment.parseComment = parseObject;
-        ParseQuery query = new ParseQuery(Post.class);
-        query.include(KEY_USER);
-        comment.getUsersLikingThisFromDB();
-        return comment;
-    }
-
+    /* ------------------------------------------------------------------- */
     public void getUsersLikingThisFromDB() throws JSONException {
         allUsersLikingThis = new ArrayList<>();
         if (parseComment.has(KEY_USERS_LIKING)) {
@@ -136,6 +105,7 @@ public class Comment {
         });
     }
 
+    /* ------------------------------------------------------------------- */
     public String getDescription(boolean isFull) {
 
         String fullDescription = parseComment.getString(KEY_DESCRIPTION);
@@ -184,6 +154,7 @@ public class Comment {
         return allUsersLikingThis.contains(ParseUser.getCurrentUser().getObjectId());
     }
 
+    /* ------------------------------------------------------------------- */
     public String calculateTimeAgo() {
 
         int SECOND_MILLIS = 1000;
@@ -218,9 +189,5 @@ public class Comment {
         }
 
         return "";
-    }
-
-    public void setInitialLikeCount() throws JSONException {
-        likeCount = allUsersLikingThis.size();
     }
 }

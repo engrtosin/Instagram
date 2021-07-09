@@ -36,25 +36,23 @@ public class Post extends ParseObject {
     public static final int MAX_DESC_LENGTH = 100;
     private static final String TAG = "PostModel";
     public static final String KEY_COMMENTS = "comments";
-    public static final int MAX_POST_NUM = 20;
 
     public boolean currentUserLikedThis;
-    public static List<String> allPostsCurrentUserLiked;
     public List<String> allUsersLikingThis = new ArrayList<>();
     public ParseUser currentUser;
     public int likeCount;
     public List<Comment> allComments;
     public List<String> allCommentIds;
-    public ParseObject thisParseObject;
 
-    public ParseObject getThisParseObject() {
-        return thisParseObject;
-    }
-
+    /* --------------------------------------------------- */
     public void initializePostFields() throws JSONException {
         getUsersLikingThisFromDB();
         setInitialLikeCount();
         queryComments();
+    }
+
+    public void setInitialLikeCount() throws JSONException {
+        likeCount = allUsersLikingThis.size();
     }
 
     public void queryComments() {
@@ -87,99 +85,6 @@ public class Post extends ParseObject {
         return comments;
     }
 
-    private List<Comment> commentsFromObjectArray(List objects) throws JSONException {
-        List<Comment> comments = new ArrayList<>();
-        for (Object object : objects) {
-            comments.add(getCommentFromParseObject((ParseObject) object));
-        }
-        return comments;
-    }
-
-    public static void getCurrUserPostsLikedFromDB() throws JSONException {
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        allPostsCurrentUserLiked = new ArrayList<>();
-        if (currentUser.has(KEY_POSTS_LIKED)) {
-            JSONArray postsJson = currentUser.getJSONArray(KEY_POSTS_LIKED);
-            Log.i(TAG,postsJson.toString());
-            for (int i = 0; i < postsJson.length(); i++) {
-                Log.i(TAG,"jsonObject to string: " + postsJson.getString(i));
-                allPostsCurrentUserLiked.add(postsJson.getString(i));
-            }
-        }
-    }
-
-    public void getUsersLikingThisFromDB() throws JSONException {
-        allUsersLikingThis = new ArrayList<>();
-        if (this.has(KEY_USERS_LIKING)) {
-            JSONArray userJSONArray = getJSONArray(KEY_USERS_LIKING);
-            Log.i(TAG,userJSONArray.toString());
-            for (int i = 0; i < userJSONArray.length(); i++) {
-                Log.i(TAG,"jsonObject to string: " + userJSONArray.getString(i));
-                allUsersLikingThis.add(userJSONArray.getString(i));
-            }
-        }
-        Log.i(TAG,"Like count for " + getDescription(false) + ": " + allUsersLikingThis.size());
-    }
-
-    public void getAllCommentsFromDB() throws JSONException {
-        if (has(KEY_COMMENTS)) {
-            Log.i(TAG,get(KEY_COMMENTS).getClass().toString());
-        }
-        allComments = commentsFromJSONArray(getJSONArray(KEY_COMMENTS));
-        allCommentIds = commentIdsFromComments(allComments);
-    }
-
-//    public Comment createNewComment(String description, ParseUser user) throws ParseException {
-//        Comment comment = new Comment();
-//        comment.parseComment = new ParseObject("Comment");
-//        comment.parseComment.put(KEY_DESCRIPTION,description);
-//        comment.parseComment.put(KEY_USER,user);
-//        comment.post = this;
-//        comment.user = user;
-//        comment.parseComment.put(Comment.KEY_POST,this);
-//        comment.parseComment.saveInBackground(new SaveCallback() {
-//            @Override
-//            public void done(ParseException e) {
-//                if (e != null) {
-//                    Log.e(TAG,"Error saving comment " + e.getMessage(),e);
-//                }
-//            }
-//        });
-//        this.addComment(0,comment);
-//        comment.allUsersLikingThis = new ArrayList<>();
-//        return comment;
-//    }
-
-    private List<String> commentIdsFromComments(List<Comment> allComments) {
-        List<String> commentIds = new ArrayList<>();
-        for (int i = 0; i < allComments.size(); i++) {
-            commentIds.add(i,allComments.get(i).parseComment.getObjectId());
-        }
-        return commentIds;
-    }
-
-    public static List<Comment> commentsFromArray(JSONArray commentObjects) throws JSONException {
-        List<Comment> comments = new ArrayList<>();
-        Log.i(TAG,commentObjects.toString());
-        for (int i = 0; i < commentObjects.length(); i++) {
-            Log.i(TAG,"comment Id to string: " + commentObjects.get(i));
-            // TODO: change this
-            comments.add(Comment.getCommentFromParseObject((ParseObject) commentObjects.get(i)));
-        }
-        return comments;
-    }
-
-    public List<Comment> commentsFromJSONArray(JSONArray commentObjects) throws JSONException {
-        List<Comment> comments = new ArrayList<>();
-        Log.i(TAG,commentObjects.toString());
-        for (int i = 0; i < commentObjects.length(); i++) {
-            Log.i(TAG,"comment Id to string: " + commentObjects.get(i));
-            // TODO: change this
-            comments.add(getCommentFromParseObject((ParseObject) commentObjects.get(i)));
-        }
-        return comments;
-    }
-
     public Comment getCommentFromParseObject(ParseObject parseObject) throws JSONException {
         Comment comment = new Comment();
         comment.parseComment = parseObject;
@@ -191,17 +96,24 @@ public class Post extends ParseObject {
         return comment;
     }
 
-    public static void updateCurrUserPostsLikedInDB(boolean isRemove, String id) throws ParseException {
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (isRemove) {
-            allPostsCurrentUserLiked.remove(id);
-            currentUser.removeAll(KEY_POSTS_LIKED, Arrays.asList(id));
+    public void addComment(int position, Comment comment) throws ParseException {
+        allComments.add(position,comment);
+        add(KEY_COMMENTS,comment.parseComment);
+        save();
+    }
+
+    /* --------------------------------------------------- */
+    public void getUsersLikingThisFromDB() throws JSONException {
+        allUsersLikingThis = new ArrayList<>();
+        if (this.has(KEY_USERS_LIKING)) {
+            JSONArray userJSONArray = getJSONArray(KEY_USERS_LIKING);
+            Log.i(TAG,userJSONArray.toString());
+            for (int i = 0; i < userJSONArray.length(); i++) {
+                Log.i(TAG,"jsonObject to string: " + userJSONArray.getString(i));
+                allUsersLikingThis.add(userJSONArray.getString(i));
+            }
         }
-        else {
-            allPostsCurrentUserLiked.add(id);
-            currentUser.add(KEY_POSTS_LIKED,id);
-        }
-        currentUser.save();
+        Log.i(TAG,"Like count for " + getDescription(false) + ": " + allUsersLikingThis.size());
     }
 
     public void updateUsersLikingThisInDB(boolean isRemove, String id) throws ParseException {
@@ -218,6 +130,7 @@ public class Post extends ParseObject {
         save();
     }
 
+    /* --------------------------------------------------- */
     public String getDescription(boolean isFull) {
 
         String fullDescription = getString(KEY_DESCRIPTION);
@@ -275,6 +188,20 @@ public class Post extends ParseObject {
         return allUsersLikingThis.contains(ParseUser.getCurrentUser().getObjectId());
     }
 
+    public void setComments(JSONArray commentObjects) throws ParseException {
+        Log.i(TAG,"setComments");
+        put(KEY_COMMENTS,commentObjects);
+        saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG,"error while saving after setting comments: " + e.getMessage(),e);
+                }
+            }
+        });
+    }
+
+    /* --------------------------------------------------- */
     public String calculateTimeAgo() {
 
         int SECOND_MILLIS = 1000;
@@ -310,28 +237,5 @@ public class Post extends ParseObject {
         }
 
         return "";
-    }
-
-    public void setInitialLikeCount() throws JSONException {
-        likeCount = allUsersLikingThis.size();
-    }
-
-    public void setComments(JSONArray commentObjects) throws ParseException {
-        Log.i(TAG,"setComments");
-        put(KEY_COMMENTS,commentObjects);
-        saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    Log.e(TAG,"error while saving after setting comments: " + e.getMessage(),e);
-                }
-            }
-        });
-    }
-
-    public void addComment(int position, Comment comment) throws ParseException {
-        allComments.add(position,comment);
-        add(KEY_COMMENTS,comment.parseComment);
-        save();
     }
 }
