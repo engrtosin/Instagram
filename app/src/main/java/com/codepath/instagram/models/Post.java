@@ -32,6 +32,7 @@ public class Post extends ParseObject {
     public static final String KEY_LIKE_COUNT = "likeCount";
     public static final String KEY_POSTS_LIKED = "postsLiked";
     public static final String KEY_USERS_LIKING = "usersLikingThis";
+    public static final String KEY_USER_PROFILE = "userPic";
     public static final int MAX_DESC_LENGTH = 100;
     private static final String TAG = "PostModel";
     public static final String KEY_COMMENTS = "comments";

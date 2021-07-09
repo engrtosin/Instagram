@@ -257,7 +257,8 @@
             android:layout_height="28dp"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="10dp"
-            app:srcCompat="@drawable/direct" />
+            app:tint="@color/black"
+            app:srcCompat="@drawable/ic_baseline_send_24" />
     </RelativeLayout>
 
     <View

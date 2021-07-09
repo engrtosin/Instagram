@@ -3,7 +3,9 @@ package com.codepath.instagram.fragments;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -48,7 +50,8 @@ public class ComposeFragment extends FeedFragment {
     public static final String TAG = "ComposeFragment";
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
     private static final int TAKEN_PHOTO_WIDTH = 100;
-    private File photoFile;
+    private static final int PICK_PHOTO_CODE = 100;
+    protected File photoFile;
     public String photoFileName = "photo.jpg";
 
     FragmentComposeBinding binding;
@@ -76,7 +79,6 @@ public class ComposeFragment extends FeedFragment {
         binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                binding.pbLoading.setVisibility(View.VISIBLE);
                 Log.i(TAG,"wants to submit");
                 String description = binding.etDescription.getText().toString();
                 if (description.isEmpty()) {
@@ -105,9 +107,28 @@ public class ComposeFragment extends FeedFragment {
                 launchCamera();
             }
         });
+        binding.ivAttachFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onPickPhoto(v);
+            }
+        });
     }
 
-    private void launchCamera() {
+    public void onPickPhoto(View view) {
+        // Create intent for picking a photo from the gallery
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
+        // So as long as the result is not null, it's safe to use the intent.
+        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+            // Bring up gallery to select a photo
+            startActivityForResult(intent, PICK_PHOTO_CODE);
+        }
+    }
+
+    protected void launchCamera() {
         // create Intent to take a picture and return control to the calling application
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Create a File reference for future access
@@ -142,6 +163,24 @@ public class ComposeFragment extends FeedFragment {
         return new File(mediaStorageDir.getPath() + File.separator + fileName);
     }
 
+    public Bitmap loadFromUri(Uri photoUri) {
+        Bitmap image = null;
+        try {
+            // check version of Android on device
+            if(Build.VERSION.SDK_INT > 27){
+                // on newer versions of Android, use the new decodeBitmap method
+                ImageDecoder.Source source = ImageDecoder.createSource(getActivity().getContentResolver(), photoUri);
+                image = ImageDecoder.decodeBitmap(source);
+            } else {
+                // support older versions of Android by using getBitmap
+                image = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), photoUri);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -161,9 +200,18 @@ public class ComposeFragment extends FeedFragment {
                 Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+        else if ((data != null) && requestCode == PICK_PHOTO_CODE) {
+            Uri photoUri = data.getData();
+
+            // Load the image located at photoUri into selectedImage
+            Bitmap selectedImage = loadFromUri(photoUri);
+
+            // Load the selected image into a preview
+            binding.ivPostPhoto.setImageBitmap(selectedImage);
+        }
     }
 
-    private void resizeBitmap() throws IOException {
+    protected void resizeBitmap() throws IOException {
         // See code above
         Uri takenPhotoUri = Uri.fromFile(getPhotoFileUri(photoFileName));
 // by this point we have the camera photo on disk
@@ -185,6 +233,7 @@ public class ComposeFragment extends FeedFragment {
     }
 
     private void savePost(String description, ParseUser currentUser, File photoFile) throws ParseException {
+        binding.pbLoading.setVisibility(View.VISIBLE);
         Post post = new Post();
         post.setDescription(description);
         post.setImage(new ParseFile(photoFile));
@@ -204,6 +253,7 @@ public class ComposeFragment extends FeedFragment {
                 binding.ivPostPhoto.setImageResource(0);
             }
         });
+        binding.pbLoading.setVisibility(View.GONE);
     }
 
     @Override

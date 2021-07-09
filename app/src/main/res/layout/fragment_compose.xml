@@ -18,17 +18,16 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/ivCamera"
+            android:id="@+id/btnSubmit"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:scaleType="fitXY"
-            android:scaleX="2"
-            android:scaleY="2"
-            app:srcCompat="@drawable/camera_shadow_fill"
-            android:visibility="gone"
+            android:layout_toEndOf="@id/pbLoading"
+            android:scaleX="1.5"
+            android:scaleY="1.5"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="6dp"
+            app:srcCompat="@drawable/ic_baseline_done_24"
             app:tint="@color/black" />
 
         <TextView
@@ -48,7 +47,7 @@
             android:layout_marginTop="0dp"
             android:layout_marginEnd="20dp"
             android:layout_toStartOf="@+id/ivLogout"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/ivLogout"
@@ -69,42 +68,67 @@
         android:layout_marginTop="10dp"
         android:background="#c0c0c0" />
 
-    <EditText
-        android:id="@+id/etDescription"
-        android:layout_width="match_parent"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvMediaOptions"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
+        android:layout_marginTop="25dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/vDemarcate"
-        android:layout_marginTop="40dp"
-        android:hint="Description"
-        android:inputType="textMultiLine" />
+        android:layout_below="@+id/btnRowTop" >
 
-    <Button
-        android:id="@+id/btnTakePicture"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etDescription"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="42dp"
-        android:text="Take Picture" />
+        <ImageView
+            android:id="@+id/btnTakePicture"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="5dp"
+            android:scaleType="fitXY"
+            android:scaleX="2"
+            android:scaleY="2"
+            android:src="@drawable/camera_shadow_fill"
+            app:tint="@color/black"
+            app:srcCompat="@drawable/camera_shadow_fill" />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="5dp"
+            android:background="@color/boundary_gray"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:id="@+id/ivAttachFile"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_gravity="end"
+            android:src="@drawable/ic_baseline_attach_file_24"
+            app:srcCompat="@drawable/ic_baseline_attach_file_24"
+            app:tint="@color/black" />
+
+    </androidx.cardview.widget.CardView>
 
     <ImageView
         android:id="@+id/ivPostPhoto"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        android:layout_below="@+id/btnTakePicture"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/cvMediaOptions"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <Button
-        android:id="@+id/btnSubmit"
+    <EditText
+        android:id="@+id/etDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ivPostPhoto"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:text="Submit" />
+        android:paddingStart="20dp"
+        android:paddingTop="5dp"
+        android:minHeight="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/ivPostPhoto"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/rounded_text_rectangle"
+        android:hint="Description"
+        android:inputType="textMultiLine" />
 
 </RelativeLayout>

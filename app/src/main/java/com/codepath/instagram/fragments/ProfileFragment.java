@@ -32,7 +32,7 @@ public class ProfileFragment extends PostsFragment {
     public static final String TAG = "ProfileFragment";
     public static final int FRAGMENT_SPAN_COUNT = 1;
 
-    ParseUser user;
+    public ParseUser user;
 
     @Override
     public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
@@ -51,7 +51,7 @@ public class ProfileFragment extends PostsFragment {
         binding.rvPosts.setAdapter(adapter);
         binding.rvPosts.setLayoutManager(glManager);
 
-        if (user.equals(ParseUser.getCurrentUser())) {
+        if (user.getUsername().equals(ParseUser.getCurrentUser().getUsername())) {
             binding.ivCamera.setVisibility(View.VISIBLE);
         }
         else {
@@ -60,9 +60,20 @@ public class ProfileFragment extends PostsFragment {
         binding.ivCamera.setImageResource(R.drawable.ic_baseline_person_add_24);
         binding.ivCamera.setScaleX(1f);
         binding.ivCamera.setScaleY(1f);
+        binding.ivCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.goToFragment(new ChangePicFragment(), Parcels.wrap(user));
+            }
+        });
+
         setButtonClickListeners();
 
         queryPosts();
+    }
+
+    private void updateProfilePic() {
+
     }
 
     @Override

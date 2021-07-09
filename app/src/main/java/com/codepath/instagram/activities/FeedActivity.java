@@ -21,6 +21,7 @@ import com.codepath.instagram.FeedFragment;
 import com.codepath.instagram.R;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.ActivityFeedBinding;
+import com.codepath.instagram.fragments.ChangePicFragment;
 import com.codepath.instagram.fragments.CommentsFragment;
 import com.codepath.instagram.fragments.ComposeFragment;
 import com.codepath.instagram.fragments.PostDetailsFragment;
@@ -94,6 +95,13 @@ public class FeedActivity extends AppCompatActivity {
                     toFragment.setArguments(args);
                     fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
                 }
+                else if (toFragment instanceof ChangePicFragment) {
+                    binding.bottomNavigation.setVisibility(View.GONE);
+                    Bundle args = new Bundle();
+                    args.putParcelable(Post.KEY_USER,extraInfo);
+                    toFragment.setArguments(args);
+                    fragmentManager.beginTransaction().replace(R.id.flContainer, toFragment).commit();
+                }
             }
         };
 
@@ -103,16 +111,19 @@ public class FeedActivity extends AppCompatActivity {
                 FeedFragment fragment;
                 switch (item.getItemId()) {
                     case R.id.action_home:
+                        profileUser = ParseUser.getCurrentUser();
                         fragment = new PostsFragment();
                         fragment.setListener(fragmentListener);
                         break;
                     case R.id.action_compose:
+                        profileUser = ParseUser.getCurrentUser();
                         fragment = new ComposeFragment();
                         fragment.setListener(fragmentListener);
                         break;
                     case R.id.action_profile:
                         fragment = new ProfileFragment();
                         Bundle args = new Bundle();
+                        Log.i(TAG,"Going to " + profileUser.getUsername() + "'s profile");
                         args.putParcelable(Post.KEY_USER,Parcels.wrap(profileUser));
                         fragment.setArguments(args);
                         fragment.setListener(fragmentListener);
@@ -167,6 +178,10 @@ public class FeedActivity extends AppCompatActivity {
                     fragmentManager.beginTransaction().replace(R.id.flContainer, previousFragment).commit();
                 }
             }
+        }
+        else if (currentFragment instanceof ChangePicFragment) {
+            binding.bottomNavigation.setVisibility(View.VISIBLE);
+            binding.bottomNavigation.setSelectedItemId(R.id.action_profile);
         }
         else {
             super.onBackPressed();

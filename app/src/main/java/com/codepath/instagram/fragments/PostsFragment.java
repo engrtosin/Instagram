@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.FeedFragment;
+import com.codepath.instagram.activities.LoginActivity;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
 import com.codepath.instagram.models.Comment;
@@ -117,6 +118,7 @@ public class PostsFragment extends FeedFragment {
             @Override
             public void onClick(View v) {
                 ParseUser.logOut();
+                LoginActivity.currentUser = ParseUser.getCurrentUser();
                 goLoginActivity();
             }
         });

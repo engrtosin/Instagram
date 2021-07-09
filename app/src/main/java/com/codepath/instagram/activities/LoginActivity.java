@@ -8,19 +8,27 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.ActivityLoginBinding;
 import com.codepath.instagram.models.Post;
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 import org.json.JSONException;
 
+import java.util.List;
+
 public class LoginActivity extends AppCompatActivity {
 
     public static final String TAG = "LoginActivity";
     ActivityLoginBinding binding;
+    public static ParseUser currentUser;
 
 
     @Override
@@ -37,6 +45,8 @@ public class LoginActivity extends AppCompatActivity {
 //            } catch (JSONException e) {
 //                Log.e(TAG,"error getting liked posts list from DB" + e.getMessage(), e);
 //            }
+            currentUser = ParseUser.getCurrentUser();
+            queryCurrentUser();
             goFeedActivity();
         }
 
@@ -55,6 +65,23 @@ public class LoginActivity extends AppCompatActivity {
                 String username = binding.etUsername.getText().toString();
                 String password = binding.etPassword.getText().toString();
                 signUpUser(username,password);
+            }
+        });
+    }
+
+    private void queryCurrentUser() {
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.include(PostsAdapter.USER_PIC_KEY);
+        Log.i(TAG,"current user id: " + currentUser.getObjectId());
+        query.whereEqualTo("objectId",currentUser.getObjectId());
+        query.findInBackground(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> objects, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG,"Error getting current user: " + e.getMessage(),e);
+                    return;
+                }
+                currentUser = objects.get(0);
             }
         });
     }
@@ -91,6 +118,8 @@ public class LoginActivity extends AppCompatActivity {
                     Log.e(TAG,"Login error occured",e);
                     return;
                 }
+                currentUser = ParseUser.getCurrentUser();
+                queryCurrentUser();
                 goFeedActivity();
                 Toast.makeText(LoginActivity.this,"Successful!",Toast.LENGTH_SHORT).show();
             }

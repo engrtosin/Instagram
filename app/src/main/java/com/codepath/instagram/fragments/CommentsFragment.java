@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.codepath.instagram.EndlessRecyclerViewScrollListener;
 import com.codepath.instagram.FeedFragment;
 import com.codepath.instagram.R;
+import com.codepath.instagram.activities.LoginActivity;
 import com.codepath.instagram.adapters.CommentsAdapter;
 import com.codepath.instagram.adapters.PostsAdapter;
 import com.codepath.instagram.databinding.FragmentCommentsBinding;
@@ -124,6 +125,11 @@ public class CommentsFragment extends FeedFragment {
             Log.i(TAG,"about to glide user pic");
             Glide.with(getContext()).load(image.getUrl()).into(binding.ivUserPhoto);
         }
+        image = LoginActivity.currentUser.getParseFile(PostsAdapter.USER_PIC_KEY);
+        if (image != null) {
+            Log.i(TAG,"about to glide user pic");
+            Glide.with(getContext()).load(image.getUrl()).into(binding.ivCurrUserPhoto);
+        }
     }
 
     private void setButtonClickListeners() {
@@ -132,6 +138,7 @@ public class CommentsFragment extends FeedFragment {
             @Override
             public void onClick(View v) {
                 ParseUser.logOut();
+                LoginActivity.currentUser = ParseUser.getCurrentUser();
                 goLoginActivity();
             }
         });

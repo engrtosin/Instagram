@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.codepath.instagram.FeedFragment;
 import com.codepath.instagram.R;
+import com.codepath.instagram.activities.LoginActivity;
 import com.codepath.instagram.databinding.FragmentPostDetailsBinding;
 import com.codepath.instagram.databinding.FragmentPostsBinding;
 import com.codepath.instagram.models.Post;
@@ -76,6 +77,7 @@ public class PostDetailsFragment extends FeedFragment {
             @Override
             public void onClick(View v) {
                 ParseUser.logOut();
+                LoginActivity.currentUser = ParseUser.getCurrentUser();
                 goLoginActivity();
             }
         });
@@ -84,6 +86,20 @@ public class PostDetailsFragment extends FeedFragment {
             @Override
             public void onClick(View v) {
                 listener.goToFragment(new CommentsFragment(), Parcels.wrap(containedPost));
+            }
+        });
+
+        binding.ivDirectMsg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        binding.ivSavePostBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 
@@ -163,6 +179,11 @@ public class PostDetailsFragment extends FeedFragment {
         if (image != null) {
             Log.i(TAG,"about to glide user pic");
             Glide.with(getContext()).load(image.getUrl()).into(binding.ivUserPhoto);
+        }
+        image = LoginActivity.currentUser.getParseFile(USER_PIC_KEY);
+        if (image != null) {
+            Log.i(TAG,"about to glide user pic");
+            Glide.with(getContext()).load(image.getUrl()).into(binding.ivCurrUserPhoto);
         }
     }
 }

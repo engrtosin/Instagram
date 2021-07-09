@@ -17,8 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.instagram.R;
+import com.codepath.instagram.activities.LoginActivity;
 import com.codepath.instagram.models.Comment;
 import com.codepath.instagram.models.Post;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -99,6 +101,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         private ImageView sendCompose;
         private EditText etNewCommentTxt;
         private ImageView ivCommentBtn;
+        private ImageView ivCurrUserPhoto;
+        private ImageView ivSavePostBtn;
+        private ImageView ivDirectMsg;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -113,6 +118,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
             sendCompose = itemView.findViewById(R.id.sendCompose);
             etNewCommentTxt = itemView.findViewById(R.id.etNewCommentTxt);
             ivCommentBtn = itemView.findViewById(R.id.ivCommentBtn);
+            ivCurrUserPhoto = itemView.findViewById(R.id.ivCurrUserPhoto);
+            ivSavePostBtn = itemView.findViewById(R.id.ivSavePostBtn);
+            ivDirectMsg = itemView.findViewById(R.id.ivDirectMsg);
 
             setViewClickListeners();
         }
@@ -143,6 +151,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 @Override
                 public void onClick(View v) {
                     etNewCommentTxt.requestFocus();
+                }
+            });
+
+            ivDirectMsg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+
+            ivSavePostBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
                 }
             });
 
@@ -219,10 +241,19 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 Log.i(TAG,"about to glide image");
                 Glide.with(context).load(image.getUrl()).into(ivPostImage);
             }
+            Log.i(TAG, "post user: " + post.getUser().getUsername());
             image = post.getUser().getParseFile(USER_PIC_KEY);
+            Log.i(TAG,"post user: " + image);
             if (image != null) {
                 Log.i(TAG,"about to glide user pic");
                 Glide.with(context).load(image.getUrl()).into(ivUserPhoto);
+            }
+            image = LoginActivity.currentUser.getParseFile(USER_PIC_KEY);
+            Log.i(TAG, LoginActivity.currentUser.getUsername());
+            Log.i(TAG,"curr user image: " + image);
+            if (image != null) {
+                Log.i(TAG,"about to glide curr user pic");
+                Glide.with(context).load(image.getUrl()).into(ivCurrUserPhoto);
             }
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
